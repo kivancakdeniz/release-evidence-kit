@@ -124,7 +124,7 @@ function parseHtmlStartTags(html) {
       attributes.set(attributeName, value);
     }
 
-    tags.push({ name, attributes });
+    tags.push({ name, attributes, startTagEnd: cursor });
     index = Math.max(cursor, opening + 1);
   }
   return tags;
@@ -154,8 +154,16 @@ for (const file of files) {
 
 for (const file of files.filter((candidate) => extname(candidate).toLowerCase() === ".svg")) {
   const svg = readFileSync(file, "utf8");
-  const unsafeSvgPatterns = [/<script\b/i, /\bon\w+\s*=/i, /javascript:/i, /<foreignObject\b/i, /(?:href|src)="https?:/i];
-  if (unsafeSvgPatterns.some((pattern) => pattern.test(svg))) report(file, "contains active or external SVG content");
+  for (const tag of parseHtmlStartTags(svg)) {
+    if (tag.name === "script" || tag.name === "foreignobject") report(file, `contains forbidden SVG element: ${tag.name}`);
+    for (const [attributeName, value] of tag.attributes) {
+      if (attributeName.startsWith("on")) report(file, `contains SVG event attribute: ${attributeName}`);
+      if (value.trim().toLowerCase().startsWith("javascript:")) report(file, `contains JavaScript SVG attribute: ${attributeName}`);
+      if ((attributeName === "href" || attributeName === "xlink:href" || attributeName === "src") && /^https?:/i.test(value.trim())) {
+        report(file, `contains external SVG resource: ${value}`);
+      }
+    }
+  }
 }
 
 const requiredFiles = [
@@ -203,17 +211,25 @@ const assetRecord = readFileSync(join(root, "assets/README.md"), "utf8");
 if (/Not yet recorded|\| Blocked \|/.test(assetRecord)) errors.push("assets/README.md: asset provenance is incomplete");
 
 const site = readFileSync(join(root, "index.html"), "utf8");
+const siteTags = parseHtmlStartTags(site);
 if (/npx\s+release-evidence|npm\s+(?:i|install)\s+release-evidence/.test(site)) errors.push("index.html: unreleased install command is present");
 if (!site.includes("No implementation") || !site.includes("No implementation or conformance claim")) {
   errors.push("index.html: pre-draft limitation is not explicit");
 }
-if (!site.includes('<meta name="referrer" content="no-referrer">')) errors.push("index.html: no-referrer policy is missing");
-const contentSecurityPolicy = site.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/)?.[1];
+const referrerPolicy = siteTags.find((tag) => tag.name === "meta" && tag.attributes.get("name")?.toLowerCase() === "referrer")?.attributes.get("content");
+if (referrerPolicy?.toLowerCase() !== "no-referrer") errors.push("index.html: no-referrer policy is missing");
+const contentSecurityPolicy = siteTags.find((tag) => tag.name === "meta" && tag.attributes.get("http-equiv")?.toLowerCase() === "content-security-policy")?.attributes.get("content");
 if (!contentSecurityPolicy) {
   errors.push("index.html: Content Security Policy is missing");
 } else {
-  for (const match of site.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
-    const hash = `sha256-${createHash("sha256").update(match[1]).digest("base64")}`;
+  for (const scriptTag of siteTags.filter((tag) => tag.name === "script")) {
+    const closing = site.indexOf("</script>", scriptTag.startTagEnd);
+    if (closing === -1) {
+      errors.push("index.html: script element is not closed");
+      continue;
+    }
+    const script = site.slice(scriptTag.startTagEnd, closing);
+    const hash = `sha256-${createHash("sha256").update(script).digest("base64")}`;
     if (!contentSecurityPolicy.includes(`'${hash}'`)) errors.push(`index.html: CSP is missing script hash ${hash}`);
   }
   for (const directive of ["default-src 'none'", "connect-src 'none'", "object-src 'none'", "form-action 'none'"]) {
