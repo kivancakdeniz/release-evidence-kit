@@ -16,7 +16,7 @@ Güvenlikle ilgili bildirimler; önerilen inceleme protokolünde aday kimliğini
 
 Deponun **Security -> Report a vulnerability** akışını kullanın. Şüphelenilen bir güvenlik açığı için public issue açmayın veya private prompt'ları, çıktıları, reviewer verilerini, kimlik bilgilerini ya da exploit ayrıntılarını public bir tartışmaya dahil etmeyin.
 
-Bu depo public olmadan önce Private vulnerability reporting MUST etkinleştirilmelidir. **Report a vulnerability** düğmesi mevcut değilse yayın kapısı geçilmemiştir ve henüz onaylanmış alternatif bir private kanal yoktur.
+Public depo için Private vulnerability reporting etkindir. **Report a vulnerability** düğmesi beklenmedik biçimde kullanılamıyorsa hassas ayrıntıları public issue içinde açıklamayın; maintainer'ın private kanalı geri yükleyebilmesi için yalnızca kanalın kullanılamadığını bildirin.
 
 Maintainer, private bir bildirimi 14 gün içinde aldığını teyit etmeyi hedefler. Bu çalışma şu anda yayımlanmış bir executable'ı olmayan bir tasarım deposu olduğundan çözüm; spesifikasyon düzeltmesi, tehdit modeli güncellemesi, yayın uyarısı veya güvenli olmayan bir önerinin geri çekilmesi olabilir.
 

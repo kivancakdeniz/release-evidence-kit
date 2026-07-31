@@ -13,17 +13,19 @@ This checklist separates what is present in the workspace from settings and lega
 | Scope, architecture, threat model, research, decisions | Ready | `docs/` |
 | Repository license in standard location | Ready | [LICENSE](LICENSE), Apache-2.0 |
 | Contribution and appeal process | Ready | [CONTRIBUTING.md](CONTRIBUTING.md), [GOVERNANCE.md](GOVERNANCE.md) |
-| Security reporting policy | Documented | [SECURITY.md](SECURITY.md); GitHub private reporting still must be enabled |
+| Security reporting policy | Ready | [SECURITY.md](SECURITY.md); GitHub private vulnerability reporting enabled 2026-07-31 |
 | Conduct policy | Ready | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
-| Public Git history and remote URL | Blocked | Initialize Git and create the public repository |
-| Protected default branch / ruleset | Blocked | Require PRs and status checks; record exception for the single maintainer if unavoidable |
-| CODEOWNERS | Blocked | Add after the final GitHub user or organization is known; own `.github/` and workflows |
-| Issue and pull-request templates | Blocked | Add after repository URL and contribution labels are chosen |
-| Private vulnerability reporting | Blocked | Enable before changing repository visibility to public |
-| Exact GitHub and npm name recheck | Point-in-time only | 2026-07-31: exact GitHub search returned zero; npm public pages for both candidate names returned 404 |
-| Trademark and domain review | Blocked | Complete immediately before creating public identities |
+| Public Git history and remote URL | Ready | [kivancakdeniz/release-evidence-kit](https://github.com/kivancakdeniz/release-evidence-kit), public `main` history |
+| Protected default branch / ruleset | Ready for P0 | Linear history and conversation resolution required; force-push and deletion disabled. PR-only merge is deferred while bus factor is 1. |
+| CODEOWNERS | Ready | `.github/`, workflows, scripts, documents, site, security policy, and checklist owned by `@kivancakdeniz` |
+| Issue and pull-request templates | Ready | Research and objection forms, private-security contact, and PR checklist published |
+| Private vulnerability reporting | Ready | Enabled in GitHub repository security settings |
+| Exact GitHub and npm name recheck | Ready for P0 | GitHub repository claimed 2026-07-31; npm candidate pages returned 404 but no package name is claimed or reserved |
+| Trademark and custom-domain review | Deferred | Required before an npm/product/custom-domain release; P0 claims no package or custom domain and makes no legal-clearance claim |
 | Bitmap/SVG source and usage rights | Ready | Generation history, terms basis, and metadata review recorded in [assets/README.md](assets/README.md) |
-| External link and bilingual-page check | Ready locally | Re-run after deployment URL exists |
+| External link and bilingual-page check | Ready | Live site checked at [kivancakdeniz.github.io/release-evidence-kit](https://kivancakdeniz.github.io/release-evidence-kit/) |
+| GitHub Pages deployment | Ready | SHA-pinned workflow, allowlisted artifact, CSP, no-referrer, robots, and sitemap; initial deployment succeeded 2026-07-31 |
+| Repository security analysis | Ready | Dependabot alerts/updates, secret scanning, and push protection enabled |
 
 P0 MUST NOT publish an npm package, installation command, conformance badge, approved-specification claim, or `latest` schema URL.
 

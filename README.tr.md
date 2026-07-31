@@ -2,6 +2,10 @@
 
 [English](README.md) · **Türkçe**
 
+[Web sitesi](https://kivancakdeniz.github.io/release-evidence-kit/) · [Türkçe teknik dokümantasyon](docs/tr/README.md) · [Yayın checklist'i](PUBLICATION-CHECKLIST.tr.md)
+
+[![Pages'i doğrula ve deploy et](https://github.com/kivancakdeniz/release-evidence-kit/actions/workflows/pages.yml/badge.svg)](https://github.com/kivancakdeniz/release-evidence-kit/actions/workflows/pages.yml)
+
 > Public ön taslak incelemesi. Henüz implementasyon veya uyumluluk iddiası yok.
 
 ![Bir kişi, aralarında terazi bulunan, birbirinden ayırt edilemeyen iki yanıtı karşılaştırıyor; sonuç aynı masa üzerinde mühürlü ve kilitli bir kayda dönüşüyor.](assets/hero-blind-review.jpg)

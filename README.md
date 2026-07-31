@@ -2,6 +2,10 @@
 
 **English** · [Türkçe](README.tr.md)
 
+[Website](https://kivancakdeniz.github.io/release-evidence-kit/) · [Technical documentation](docs/README.md) · [Publication checklist](PUBLICATION-CHECKLIST.md)
+
+[![Validate and deploy Pages](https://github.com/kivancakdeniz/release-evidence-kit/actions/workflows/pages.yml/badge.svg)](https://github.com/kivancakdeniz/release-evidence-kit/actions/workflows/pages.yml)
+
 > Public pre-draft design review. No implementation or conformance claim exists.
 
 ![A person compares two identical, unlabelled answers with a balance scale between them; the result becomes a sealed, locked record on the same desk.](assets/hero-blind-review.jpg)

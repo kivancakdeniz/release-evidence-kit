@@ -15,17 +15,19 @@ Bu checklist, workspace'te mevcut olanları yalnızca public depo kimlikleri olu
 | Kapsam, mimari, tehdit modeli, araştırma, kararlar | Ready | `docs/` |
 | Depo lisansı standart konumda | Ready | [LICENSE](LICENSE), Apache-2.0 |
 | Katkı ve itiraz süreci | Ready | [CONTRIBUTING.md](CONTRIBUTING.md), [GOVERNANCE.md](GOVERNANCE.md) |
-| Güvenlik bildirim politikası | Documented | [SECURITY.md](SECURITY.md); GitHub private reporting yine de etkinleştirilmelidir |
+| Güvenlik bildirim politikası | Ready | [SECURITY.md](SECURITY.md); GitHub private vulnerability reporting 2026-07-31 tarihinde etkinleştirildi |
 | Davranış politikası | Ready | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
-| Public Git geçmişi ve remote URL | Blocked | Git'i başlatın ve public depoyu oluşturun |
-| Korumalı varsayılan branch / ruleset | Blocked | PR'ları ve durum kontrollerini zorunlu kılın; kaçınılmazsa tek maintainer için istisnayı kaydedin |
-| CODEOWNERS | Blocked | Nihai GitHub kullanıcısı veya organizasyonu bilindikten sonra ekleyin; `.github/` ve workflow'ların sahipliğini tanımlayın |
-| Issue ve pull-request şablonları | Blocked | Depo URL'si ve katkı etiketleri seçildikten sonra ekleyin |
-| Private vulnerability reporting | Blocked | Depo görünürlüğünü public olarak değiştirmeden önce etkinleştirin |
-| Kesin GitHub ve npm adı yeniden kontrolü | Point-in-time only | 2026-07-31: kesin GitHub araması sıfır sonuç döndürdü; her iki aday ad için npm public sayfaları 404 döndürdü |
-| Trademark ve domain incelemesi | Blocked | Public kimlikleri oluşturmadan hemen önce tamamlayın |
+| Public Git geçmişi ve remote URL | Ready | [kivancakdeniz/release-evidence-kit](https://github.com/kivancakdeniz/release-evidence-kit), public `main` geçmişi |
+| Korumalı varsayılan branch / ruleset | P0 için Ready | Linear history ve conversation resolution zorunlu; force-push ve silme kapalı. Bus factor 1 iken yalnız PR ile merge ertelendi. |
+| CODEOWNERS | Ready | `.github/`, workflow'lar, scriptler, dokümanlar, site, güvenlik politikası ve checklist `@kivancakdeniz` sahipliğinde |
+| Issue ve pull-request şablonları | Ready | Araştırma ve itiraz formları, private-security bağlantısı ve PR checklist'i yayımlandı |
+| Private vulnerability reporting | Ready | GitHub depo güvenlik ayarlarında etkin |
+| Kesin GitHub ve npm adı yeniden kontrolü | P0 için Ready | GitHub deposu 2026-07-31 tarihinde alındı; npm aday sayfaları 404 döndürdü ancak paket adı alınmadı veya rezerve edilmedi |
+| Trademark ve custom-domain incelemesi | Deferred | npm/ürün/custom-domain release'inden önce zorunlu; P0 paket veya custom domain iddia etmiyor ve hukuki izin iddiası taşımıyor |
 | Bitmap/SVG kaynağı ve kullanım hakları | Ready | Üretim geçmişi, şartların dayanağı ve metadata incelemesi [assets/README.md](assets/README.md) içinde kaydedildi |
-| Harici link ve iki dilli sayfa kontrolü | Ready locally | Deployment URL'si mevcut olduktan sonra yeniden çalıştırın |
+| Harici link ve iki dilli sayfa kontrolü | Ready | Canlı site [kivancakdeniz.github.io/release-evidence-kit](https://kivancakdeniz.github.io/release-evidence-kit/) adresinde kontrol edildi |
+| GitHub Pages deployment | Ready | SHA-pinned workflow, allowlist artefakt, CSP, no-referrer, robots ve sitemap; ilk deployment 2026-07-31 tarihinde başarılı |
+| Depo güvenlik analizi | Ready | Dependabot alert/update, secret scanning ve push protection etkin |
 
 P0 bir npm paketi, kurulum komutu, conformance rozeti, onaylanmış spesifikasyon iddiası veya `latest` şema URL'si yayımlamamalıdır.
 
