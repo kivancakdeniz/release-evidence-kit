@@ -1,0 +1,31 @@
+name: Research correction
+about: Correct a landscape or standards claim using a first-party source
+labels: [research]
+body:
+  - type: input
+    id: claim
+    attributes:
+      label: Claim to correct
+      placeholder: docs/LANDSCAPE.md section or quoted sentence
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Proposed correction
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: First-party sources
+      description: Provide official documentation, standards text, or the upstream repository.
+    validations:
+      required: true
+  - type: input
+    id: checked
+    attributes:
+      label: Date checked
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true

@@ -1,0 +1,12 @@
+# Default owner
+* @kivancakdeniz
+
+# Security-sensitive repository automation
+/.github/ @kivancakdeniz
+/scripts/ @kivancakdeniz
+
+# Specification and public site surfaces
+/docs/ @kivancakdeniz
+/index.html @kivancakdeniz
+/SECURITY.md @kivancakdeniz
+/PUBLICATION-CHECKLIST.md @kivancakdeniz

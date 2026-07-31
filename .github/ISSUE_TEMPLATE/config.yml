@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security report
+    url: https://github.com/kivancakdeniz/release-evidence-kit/security/advisories/new
+    about: Report suspected vulnerabilities or sensitive disclosures privately.
+  - name: Turkish technical documentation
+    url: https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/tr/README.md
+    about: Türkçe teknik dokümantasyon indeksini açın.

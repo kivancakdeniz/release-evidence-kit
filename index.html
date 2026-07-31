@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; img-src 'self' data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'sha256-KshdanNgSOknnIjGFhooyTknYh/1k+Q31Pp3861bPz8=' 'sha256-MD5UofS5U1MnIjAZpYVIMtIZ+AxgbxxuwL+mBCKdPuA='; style-src 'self' 'unsafe-inline'; worker-src 'none'">
+  <meta name="description" content="Public pre-draft design review for a portable, independently verifiable evidence contract that binds blind human evaluation to AI capability release decisions.">
+  <link rel="canonical" href="https://kivancakdeniz.github.io/release-evidence-kit/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Release Evidence Kit">
+  <meta property="og:description" content="Public pre-draft design review for portable, independently verifiable blind release evidence.">
+  <meta property="og:url" content="https://kivancakdeniz.github.io/release-evidence-kit/">
+  <meta property="og:image" content="https://kivancakdeniz.github.io/release-evidence-kit/assets/hero-blind-review.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Release Evidence Kit">
+  <meta name="twitter:description" content="Public pre-draft design review for portable, independently verifiable blind release evidence.">
+  <meta name="twitter:image" content="https://kivancakdeniz.github.io/release-evidence-kit/assets/hero-blind-review.jpg">
+  <title>Release Evidence Kit | Public pre-draft design review</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+    body {
+      margin: 0; min-width: 320px;
+      background: var(--cp-bg); color: var(--cp-text);
+      font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.62;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    a { color: var(--cp-link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
+    h1, h2, h3, h4, p, ul, ol { margin-top: 0; }
+    .icon { width: 18px; height: 18px; flex: 0 0 auto; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    /* Top bar */
+    .topbar {
+      position: sticky; top: 0; z-index: 30; height: 64px;
+      display: flex; align-items: center; gap: 16px; padding: 0 24px;
+      background: var(--cp-overlay); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--cp-border);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .brand-mark { width: 34px; height: 34px; flex: 0 0 auto; border-radius: 9px; display: grid; place-items: center; background: var(--cp-accent); color: var(--cp-accent-fg); }
+    .brand-mark svg { width: 19px; height: 19px; }
+    .brand-text { min-width: 0; }
+    .brand-name { font-size: 14px; font-weight: 750; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-sub { font-size: 11px; color: var(--cp-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-spacer { flex: 1 1 auto; }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+    .button, .icon-button {
+      border: 1px solid var(--cp-border); border-radius: 10px; background: var(--cp-surface);
+      min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 8px 13px; cursor: pointer; font-weight: 650; font-size: 13px; text-decoration: none; color: inherit;
+    }
+    .icon-button { width: 38px; padding: 0; }
+    .button:hover, .icon-button:hover { border-color: var(--cp-border-strong); text-decoration: none; }
+    .button.primary { background: var(--cp-accent); border-color: var(--cp-accent); color: var(--cp-accent-fg); }
+    .button.primary:hover { background: var(--cp-accent-hover); }
+
+    .lang { display: inline-flex; padding: 3px; border: 1px solid var(--cp-border); border-radius: 10px; background: var(--cp-surface-soft); gap: 2px; }
+    .lang button { min-height: 32px; min-width: 38px; border: 0; border-radius: 7px; padding: 4px 9px; background: transparent; cursor: pointer; font-size: 12px; font-weight: 750; color: var(--cp-text-muted); }
+    .lang button[aria-pressed="true"] { background: var(--cp-surface); color: var(--cp-accent); }
+
+    /* Layout */
+    .shell { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 32px; max-width: 1360px; margin: 0 auto; padding: 0 24px; }
+    .toc { position: sticky; top: 64px; align-self: start; max-height: calc(100vh - 64px); overflow-y: auto; padding: 28px 0 40px; }
+    .toc-label { padding: 0 10px 8px; font-size: 11px; font-weight: 750; text-transform: uppercase; color: var(--cp-text-muted); }
+    .toc a { display: block; padding: 7px 10px; border-radius: 8px; color: var(--cp-text-muted); font-size: 13px; font-weight: 600; }
+    .toc a:hover { background: var(--cp-surface-soft); color: var(--cp-text); text-decoration: none; }
+    .toc a.active { background: var(--cp-accent-soft); color: var(--cp-accent); }
+    .main { min-width: 0; padding: 28px 0 72px; }
+
+    section { scroll-margin-top: 84px; padding-bottom: 44px; }
+    .eyebrow { color: var(--cp-accent); font-size: 12px; font-weight: 750; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 8px; }
+    h1 { font-size: clamp(28px, 3.4vw, 42px); line-height: 1.1; margin-bottom: 14px; }
+    h2 { font-size: clamp(21px, 2vw, 26px); line-height: 1.2; margin-bottom: 10px; }
+    h3 { font-size: 15px; margin-bottom: 6px; }
+    p { margin-bottom: 14px; color: var(--cp-text-muted); }
+    .lead { font-size: 16px; color: var(--cp-text-muted); max-width: 74ch; }
+    strong { color: var(--cp-text); }
+
+    figure { margin: 0 0 18px; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--cp-border); border-radius: 14px; background: var(--cp-surface); }
+    figcaption { margin-top: 9px; font-size: 12.5px; color: var(--cp-text-soft); }
+    .figure-wide img { border-radius: 16px; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 22px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--cp-border);
+      border-radius: 999px; padding: 5px 11px; background: var(--cp-surface); font-size: 11.5px; font-weight: 700;
+    }
+    .badge.ok { color: var(--cp-success); }
+    .badge.accent { color: var(--cp-accent); background: var(--cp-accent-soft); border-color: var(--cp-highlight); }
+    .badge.warn { color: var(--cp-warning); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .card { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 16px; padding: 20px; min-width: 0; }
+    .card h3 { margin-bottom: 8px; }
+    .card p:last-child { margin-bottom: 0; }
+    .grid { display: grid; gap: 14px; }
+    .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .split { grid-template-columns: minmax(0, 1.35fr) minmax(280px, .8fr); }
+
+    .callout { border-left: 3px solid var(--cp-accent); background: var(--cp-accent-soft); padding: 13px 16px; border-radius: 0 10px 10px 0; font-size: 13.5px; color: var(--cp-text-muted); }
+    .callout strong { color: var(--cp-text); }
+    .callout.warn { border-left-color: var(--cp-warning); background: var(--cp-surface-soft); }
+
+    pre.code { position: relative; margin: 0; padding: 14px 46px 14px 15px; overflow-x: auto; border-radius: 10px; background: var(--cp-bg-elevated); border: 1px solid var(--cp-border); font-size: 12.5px; line-height: 1.6; color: var(--cp-text); }
+    .copy { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border: 1px solid var(--cp-border); border-radius: 8px; background: var(--cp-surface); display: grid; place-items: center; cursor: pointer; }
+    .copy:hover { border-color: var(--cp-border-strong); }
+    .cm { color: var(--cp-text-soft); }
+
+    .steps { counter-reset: st; display: grid; gap: 16px; }
+    .step { counter-increment: st; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 13px; }
+    .step::before { content: counter(st); width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; background: var(--cp-accent-soft); color: var(--cp-accent); font-weight: 800; font-size: 13px; }
+    .step p { margin-bottom: 9px; font-size: 13.5px; }
+
+    .rows { display: grid; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--cp-border); font-size: 13.5px; }
+    .row:last-child { border-bottom: 0; }
+    .row span { color: var(--cp-text-muted); }
+    .row strong { font-size: 12.5px; text-align: right; }
+    .yes { color: var(--cp-success); }
+    .no { color: var(--cp-danger); }
+
+    .segment { display: inline-flex; flex-wrap: wrap; padding: 3px; border: 1px solid var(--cp-border); border-radius: 10px; background: var(--cp-surface-soft); gap: 2px; }
+    .segment button { min-height: 32px; border: 0; border-radius: 7px; padding: 5px 12px; background: transparent; cursor: pointer; font-size: 12.5px; font-weight: 650; }
+    .segment button.active { background: var(--cp-surface); color: var(--cp-accent); }
+
+    .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; margin: 4px 0 14px; }
+    .flow-node { flex: 1 1 150px; min-width: 0; border: 1px solid var(--cp-border); border-radius: 10px; background: var(--cp-surface-soft); padding: 12px; }
+    .flow-node.primary { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    .flow-node .icon { color: var(--cp-accent); margin-bottom: 8px; }
+    .flow-node strong { display: block; font-size: 12.5px; }
+    .flow-node small { display: block; margin-top: 4px; color: var(--cp-text-muted); font-size: 11px; line-height: 1.45; }
+
+    .chain { display: grid; gap: 6px; margin: 0 0 14px; padding: 14px; border: 1px dashed var(--cp-border-strong); border-radius: 12px; background: var(--cp-bg-elevated); font-family: Consolas, "Courier New", Courier, monospace; font-size: 12.5px; }
+    .chain span { color: var(--cp-text-muted); }
+    .chain span b { color: var(--cp-accent); font-weight: 700; }
+
+    .field { display: grid; gap: 7px; margin-bottom: 15px; }
+    .field-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .field label { font-size: 12.5px; font-weight: 700; }
+    .field output { color: var(--cp-accent); font-size: 12.5px; font-weight: 750; }
+    input[type="range"] { width: 100%; accent-color: var(--cp-accent); }
+    select { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--cp-border); border-radius: 10px; background: var(--cp-surface); color: var(--cp-text); }
+    .estimate { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .est { border: 1px solid var(--cp-border); border-radius: 10px; background: var(--cp-surface-soft); padding: 12px; }
+    .est span { display: block; color: var(--cp-text-muted); font-size: 10.5px; }
+    .est strong { display: block; margin-top: 5px; font-size: 17px; }
+
+    .check { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--cp-border); font-size: 13.5px; cursor: pointer; }
+    .check:last-of-type { border-bottom: 0; }
+    .check input { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--cp-accent); cursor: pointer; flex: 0 0 auto; }
+    .verdict { margin-top: 14px; padding: 14px; border-radius: 10px; border: 1px solid var(--cp-border); background: var(--cp-surface-soft); font-size: 13.5px; }
+    .verdict strong { display: block; margin-bottom: 4px; }
+
+    .demo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .answer { min-height: 150px; border: 1px solid var(--cp-border); border-radius: 10px; padding: 14px; background: var(--cp-bg-elevated); cursor: pointer; text-align: left; }
+    .answer:hover, .answer.sel { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    .answer b { color: var(--cp-accent); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .answer p { margin: 12px 0 0; font-size: 12.5px; line-height: 1.6; }
+    .demo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .demo-out { margin-top: 12px; font-size: 12px; color: var(--cp-text-muted); }
+
+    footer { border-top: 1px solid var(--cp-border); padding: 26px 24px 44px; }
+    .foot-inner { max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; font-size: 12.5px; color: var(--cp-text-muted); }
+
+    .toast { position: fixed; z-index: 60; right: 20px; bottom: 20px; display: none; align-items: center; gap: 9px; padding: 12px 14px; border: 1px solid var(--cp-border); border-radius: 10px; background: var(--cp-panel-strong); box-shadow: var(--cp-shadow); font-size: 12.5px; font-weight: 650; }
+    .toast.show { display: flex; }
+    .toast .icon { color: var(--cp-success); }
+
+    @media (max-width: 1080px) {
+      .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .split { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: 1fr; gap: 0; }
+      .toc { position: static; max-height: none; padding: 12px 0 0; overflow-x: auto; }
+      .toc-label { display: none; }
+      .toc nav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; }
+      .toc a { white-space: nowrap; border: 1px solid var(--cp-border); }
+      .main { padding-top: 18px; }
+    }
+    @media (max-width: 700px) {
+      .topbar { height: 58px; padding: 0 14px; gap: 10px; }
+      .brand-sub { display: none; }
+      .topbar-actions .button span { display: none; }
+      .topbar-actions .button { width: 38px; padding: 0; }
+      .shell { padding: 0 14px; }
+      .g2, .g3, .g4 { grid-template-columns: 1fr; }
+      .estimate { grid-template-columns: 1fr; }
+      .demo-pair { grid-template-columns: 1fr; }
+      .card { padding: 16px; border-radius: 12px; }
+      h1 { font-size: 27px; }
+    }
+    @media (max-width: 560px) {
+      .brand-text { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="sr-only" aria-hidden="true">
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-git" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 8v8m2-10h8a2 2 0 0 1 2 2v6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m7 9 3 3-3 3m5 0h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 4.2A10.8 10.8 0 0 1 12 4c5 0 9 4 10 8a12 12 0 0 1-2.1 4.1M6.2 6.2A12 12 0 0 0 2 12c1 4 5 8 10 8 1.6 0 3-.4 4.3-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6m-12 7 2 2 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="m12 2 9 5-9 5-9-5 9-5Zm-9 5v10l9 5 9-5V7M12 12v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.9m-2-11.8a4 4 0 0 1 0 7.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-cloudoff" viewBox="0 0 24 24"><path d="m3 3 18 18M17.7 17.7H7a4 4 0 0 1-.6-8A6 6 0 0 1 8 7.3m3-1.2a6 6 0 0 1 7 5.6 4 4 0 0 1 2.6 3.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7h6ZM19 7l-3 7h6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-seal" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><svg><use href="#i-seal"/></svg></div>
+      <div class="brand-text">
+        <div class="brand-name">Release Evidence Kit</div>
+        <div class="brand-sub" data-tr="Doğrulanabilir release kanıtı için herkese açık ön taslak">Public pre-draft for verifiable release evidence</div>
+      </div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <div class="lang" role="group" aria-label="Language">
+        <button data-lang="en" aria-pressed="true">EN</button>
+        <button data-lang="tr" aria-pressed="false">TR</button>
+      </div>
+      <button class="icon-button" id="themeBtn" aria-label="Toggle theme"><svg class="icon"><use id="themeIcon" href="#i-moon"/></svg></button>
+      <a class="button primary" href="#status"><svg class="icon"><use href="#i-file"/></svg><span data-tr="Yayın hazırlığı">Release readiness</span></a>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="toc">
+      <div class="toc-label" data-tr="İçindekiler">On this page</div>
+      <nav id="toc" aria-label="Section navigation">
+        <a href="#what" class="active" data-tr="Bu nedir">What this is</a>
+        <a href="#why" data-tr="Neden önemli">Why it matters</a>
+        <a href="#landscape" data-tr="Mevcut araçlar">Existing tools</a>
+        <a href="#how" data-tr="Nasıl çalışır">How it works</a>
+        <a href="#integrity" data-tr="Neden taklit edilemez">Why it is hard to fake</a>
+        <a href="#status" data-tr="Yayın hazırlığı">Release readiness</a>
+        <a href="#requirements" data-tr="Tasarım kısıtları">Design constraints</a>
+        <a href="#deploy" data-tr="Planlanan kullanım şekilleri">Planned recipes</a>
+        <a href="#format" data-tr="Format ve doğrulama">Format and verification</a>
+        <a href="#fit" data-tr="Size uygun mu">Is this for you</a>
+        <a href="#project" data-tr="Proje ve süreklilik">Project and continuity</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <section id="what">
+        <div class="eyebrow" data-tr="P0 · Herkese açık tasarım incelemesi · Henüz implementasyon yok">P0 · Public design review · No implementation yet</div>
+        <h1>Release Evidence Kit</h1>
+        <p class="lead" data-tr="Git'te tuttuğunuz prompt, agent, skill, toolset, RAG veya workflow değişikliğini yayına almadan önce; kimliği gizlenmiş insan değerlendirmesini, kullanılan baytları ve isimli insan kararını tek bir taşınabilir kanıt paketinde birbirine bağlamak için <strong>açık bir format önerisi</strong>. Hedef, paketin herhangi bir sunucuya ya da bu projenin aracına ihtiyaç duymadan doğrulanabilmesi.">An <strong>open format proposal</strong> for binding blind human review, the exact bytes reviewed, and a named human decision into one portable evidence bundle before shipping a prompt, agent, skill, toolset, RAG or workflow change kept in Git. The target is verification without any server or dependency on this project's tooling.</p>
+
+        <figure class="figure-wide">
+          <img src="assets/hero-blind-review.jpg" width="1200" height="800"
+               alt="Illustration: a person compares two identical, unlabelled answers with a balance scale between them, and the result becomes a sealed, locked record on the same desk."
+               data-tr-alt="İllüstrasyon: bir kişi, aralarında bir terazi bulunan, birbirinden ayırt edilemeyen iki yanıtı karşılaştırıyor; sonuç aynı masa üzerinde mühürlü ve kilitli bir kayda dönüşüyor.">
+          <figcaption data-tr="Değerlendirici hangi yanıtın yeni sürüme ait olduğunu bilmez. Seçim yapıldıktan sonra sonuç mühürlenir ve bir daha sessizce değiştirilemez.">The reviewer never learns which answer came from the new version. Once the choice is made, the result is sealed and cannot be quietly changed afterwards.</figcaption>
+        </figure>
+
+        <div class="badges">
+          <span class="badge ok"><span class="dot"></span><span data-tr="Hesap gerektirmez">No account</span></span>
+          <span class="badge ok"><span class="dot"></span><span data-tr="Sunucu gerektirmez">No server</span></span>
+          <span class="badge ok"><span class="dot"></span><span data-tr="Telemetri yok">No telemetry</span></span>
+          <span class="badge ok"><span class="dot"></span><span data-tr="Çevrimdışı doğrulanır">Verifies offline</span></span>
+          <span class="badge accent" data-tr="Tasarım deposu: Apache-2.0">Design repo: Apache-2.0</span>
+          <span class="badge accent" data-tr="Spec: normatif değil">Spec: non-normative</span>
+          <span class="badge warn" data-tr="Durum: herkese açık ön taslak">Status: public pre-draft</span>
+          <span class="badge warn" data-tr="Henüz paket veya CLI yok">No package or CLI yet</span>
+        </div>
+
+        <div class="grid g4">
+          <article class="card"><svg class="icon" style="color:var(--cp-accent)"><use href="#i-cloudoff"/></svg><h3 data-tr="Hosted servis yok">No hosted service</h3><p data-tr="Kayıt olmanız, bir API anahtarı vermeniz veya verinizi bir yere göndermeniz gerekmez.">You never sign up, hand over an API key, or send your data anywhere.</p></article>
+          <article class="card"><svg class="icon" style="color:var(--cp-accent)"><use href="#i-git"/></svg><h3 data-tr="Git-native">Git-native</h3><p data-tr="Değerlendirilen baytları dirHash tanımlar; kaynak commit'i ayrı bir provenance kaydıdır.">The reviewed bytes are identified by dirHash; the source commit is separate provenance.</p></article>
+          <article class="card"><svg class="icon" style="color:var(--cp-accent)"><use href="#i-package"/></svg><h3 data-tr="Taşınabilir paket">Portable bundle</h3><p data-tr="Çıktı düz JSON ve JSONL. Bu proje ortadan kalksa bile paket okunabilir kalır.">The output is plain JSON and JSONL. If this project disappears, your bundle is still readable.</p></article>
+          <article class="card"><svg class="icon" style="color:var(--cp-accent)"><use href="#i-scale"/></svg><h3 data-tr="Mevcut araçlarla">Works with your tools</h3><p data-tr="Eval runner'ınızı değiştirmez. Promptfoo veya kendi JSON çıktınızı içeri alır.">It does not replace your eval runner. It imports output from Promptfoo or from your own JSON.</p></article>
+        </div>
+
+        <div class="callout" style="margin-top:16px" data-tr="<strong>Bugün yayımlanabilen şey tasarım incelemesi:</strong> Problem tanımı, format ön taslağı, araştırma, mimari kararlar, tehdit modeli ve yayın checklist'i. npm paketi, CLI, GitHub Action, örnek paket veya uyumluluk iddiası henüz yok. Bu proje ileride de model çalıştırmayacak, prompt yönetmeyecek, deployment yapmayacak veya istatistiksel bir “geçti” kararı üretmeyecek."><strong>What can be published today is the design review:</strong> the problem definition, format sketch, research, architecture decisions, threat model, and publication checklist. There is no npm package, CLI, GitHub Action, example bundle, or conformance claim yet. The project will not run models, manage prompts, deploy anything, or produce a statistical “pass” verdict.</div>
+      </section>
+
+      <section id="why">
+        <div class="eyebrow" data-tr="Neden önemli">Why it matters</div>
+        <h2 data-tr="Aynı iş, iki farklı sonuç">The same work, two different outcomes</h2>
+        <p class="lead" data-tr="Çoğu ekip yeni bir sürümü birkaç örnek üzerinde deneyip yayına alıyor. Bir ay sonra “bu değişikliği neden onayladık” sorusuna verilecek cevap kimsede olmuyor. Değişen tek şey, aynı emeğin geriye dönük okunabilir bir kayda dönüşmesi.">Most teams try a new version on a handful of examples and ship it. A month later nobody can answer “why did we approve this change?”. The only difference here is that the same effort turns into a record you can read back.</p>
+
+        <figure class="figure-wide">
+          <img src="assets/why-it-matters.jpg" width="1200" height="800"
+               alt="Illustration: on the left, scattered sticky notes, loose paper and a person shrugging. On the right, one neat document being signed, carrying a wax seal and a check mark."
+               data-tr-alt="İllüstrasyon: solda dağınık yapışkan notlar, gelişigüzel kâğıtlar ve omuz silken bir kişi. Sağda, mühür ve onay işareti taşıyan, imzalanmakta olan tek ve düzenli bir belge.">
+          <figcaption data-tr="Solda: dağınık notlar, kanaatler ve hatırlanmayan gerekçeler. Sağda: tek bir mühürlü kayıt, isimli bir karar ve altı ay sonra da geçerli bir açıklama.">Left: scattered notes, opinions and reasons nobody remembers. Right: one sealed record, a named decision, and an explanation that still holds six months later.</figcaption>
+        </figure>
+
+        <div class="grid g3">
+          <article class="card">
+            <h3 data-tr="Denetim ve devir teslim">Audit and handover</h3>
+            <p data-tr="“Bu sürümü kim, neye bakarak onayladı?” sorusunun cevabı dosyada duruyor. Kimseyi hatırlamaya zorlamıyorsunuz.">The answer to “who approved this version, and based on what?” sits in a file. Nobody has to remember it.</p>
+          </article>
+          <article class="card">
+            <h3 data-tr="Taraflı değerlendirme riski">Biased review</h3>
+            <p data-tr="Kendi yazdığı prompt'u değerlendiren kişi ona daha yumuşak bakar. Kimliğin gizlenmesi bu etkiyi ortadan kaldırmaz ama ölçülebilir biçimde azaltır.">Someone judging their own prompt goes easy on it. Blinding does not remove that effect, but it measurably reduces it.</p>
+          </article>
+          <article class="card">
+            <h3 data-tr="Araç bağımsızlığı">Tool independence</h3>
+            <p data-tr="Eval aracınızı veya sağlayıcınızı değiştirdiğinizde geçmiş kararlarınız hesabınızla birlikte kaybolmaz; düz dosya olarak sizde kalır.">When you change eval tool or vendor, your past decisions do not vanish with the account. They stay with you as plain files.</p>
+          </article>
+        </div>
+
+        <div class="callout warn" style="margin-top:16px" data-tr="<strong>Dürüst sınır:</strong> Bu kayıt sürümün <em>daha iyi olduğunu</em> kanıtlamaz. Yalnızca kararın hangi karşılaştırmalara, kaç değerlendiriciye ve hangi baytlara dayandığını kanıtlar. İstatistiksel bir yeterlilik iddiası üretmez."><strong>Honest limit:</strong> this record does not prove the new version is <em>better</em>. It only proves which comparisons, how many reviewers and which exact bytes the decision rested on. It makes no claim of statistical sufficiency.</div>
+      </section>
+
+      <section id="landscape">
+        <div class="eyebrow" data-tr="31 Temmuz 2026 araştırma yenilemesi">Research refreshed 31 July 2026</div>
+        <h2 data-tr="İyi araçlar zaten işin çoğunu yapıyor">Good tools already do most of the workflow</h2>
+        <p class="lead" data-tr="Bu projenin savunulabilir alanı bir review ekranı, annotation queue veya export özelliği değil. Bunlar olgun araçlarda var. Önerilen boşluk, bu araçlardan çıkan kayıtları tek bir doğrulanabilir release karar zincirine bağlamak.">The defensible space is not another review screen, annotation queue, or export feature. Mature tools already provide those. The proposed gap is binding records from those tools into one verifiable release-decision chain.</p>
+
+        <div class="grid g4">
+          <article class="card">
+            <h3>Promptfoo</h3>
+            <p data-tr="Zengin eval runner, seeded sampling, CI ve portable export/import; kimlik, runtime, trace ve opsiyonel media verisini koruyor.">Rich eval runner, seeded sampling, CI, and portable export/import that preserves identity, runtime, traces, and optional media.</p>
+            <a href="https://www.promptfoo.dev/docs/usage/command-line/" target="_blank" rel="noopener noreferrer" data-tr="Resmi doküman">Official docs</a>
+          </article>
+          <article class="card">
+            <h3>LangSmith</h3>
+            <p data-tr="Pairwise annotation queue, reviewer ataması, yorumlar ve prompt release workflow'u sunuyor.">Provides pairwise annotation queues, reviewer assignment, comments, and prompt release workflows.</p>
+            <a href="https://docs.langchain.com/langsmith/annotation-queues" target="_blank" rel="noopener noreferrer" data-tr="Resmi doküman">Official docs</a>
+          </article>
+          <article class="card">
+            <h3>Langfuse</h3>
+            <p data-tr="Domain-expert annotation queue, prompt version'ları, protected production label'ları ve rollback sağlıyor.">Provides domain-expert annotation queues, prompt versions, protected production labels, and rollback.</p>
+            <a href="https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues" target="_blank" rel="noopener noreferrer" data-tr="Resmi doküman">Official docs</a>
+          </article>
+          <article class="card">
+            <h3>Label Studio</h3>
+            <p data-tr="Esnek pairwise annotation ve reviewer kimliği ile timestamp içeren raw JSON export sağlıyor.">Provides flexible pairwise annotation and raw JSON exports containing reviewer identity and timestamps.</p>
+            <a href="https://labelstud.io/guide/export" target="_blank" rel="noopener noreferrer" data-tr="Resmi doküman">Official docs</a>
+          </article>
+        </div>
+
+        <div class="callout" style="margin-top:16px" data-tr="<strong>İddia ettiğimiz dar boşluk:</strong> İncelenen artefakt baytları + aynı runtime + ön kayıtlı protokol + replay edilebilir atama + append-only insan review'u + dondurulmuş exclusion'lar + isimli karar digest'i. Mevcut araçları değiştirmek değil, aralarındaki release evidence sözleşmesini tanımlamak."><strong>The narrow gap we claim:</strong> reviewed artifact bytes + same runtime + pre-registered protocol + replayable assignment + append-only human review + frozen exclusions + named decision digest. The goal is not to replace existing tools, but to define the release-evidence contract between them.</div>
+      </section>
+
+      <section id="how">
+        <div class="eyebrow" data-tr="Nasıl çalışır">How it works</div>
+        <h2 data-tr="Dört adım">Four steps</h2>
+
+        <figure class="figure-wide">
+          <img id="howImg" src="assets/how-it-works.en.svg" width="1200" height="420"
+               data-src-en="assets/how-it-works.en.svg" data-src-tr="assets/how-it-works.tr.svg"
+            alt="Target flow diagram: step 1 two versions, step 2 blind comparison, step 3 sealed evidence, step 4 human decision, designed to run on your own machine."
+            data-tr-alt="Hedef akış diyagramı: 1. adım iki sürüm, 2. adım kör karşılaştırma, 3. adım mühürlenmiş kanıt, 4. adım insan kararı; kendi makinenizde çalışmak üzere tasarlanır.">
+        </figure>
+
+        <p class="lead" data-tr="Otomatik grader'lar iyi tanımlanmış rubriklerde insan uyumuna yaklaşıyor. Ama öznel kalite kararlarında hâlâ insan yargısı gerekiyor ve bu yargının taraflı olmaması için değerlendiricinin hangi sürümü gördüğünü bilmemesi şart.">Automated graders are getting close to human agreement on well-specified rubrics. Subjective quality calls still need human judgement — and for that judgement to be unbiased, the reviewer must not know which version they are looking at.</p>
+
+        <div class="grid split">
+          <div class="grid">
+            <article class="card">
+              <h3 data-tr="Zincir">The chain</h3>
+              <div class="chain">
+                <span data-tr="Git artefaktı <b>(baseline + candidate)</b>">Git artifact <b>(baseline + candidate)</b></span>
+                <span data-tr="-&gt; aynı case seti ve beyan edilmiş runtime">-&gt; same case set and declared runtime</span>
+                <span data-tr="-&gt; <b>kör</b>, dengeli sıralı ikili karşılaştırma">-&gt; <b>blind</b>, order-balanced pairwise comparison</span>
+                <span data-tr="-&gt; tercih + gerekçe + etiket">-&gt; preference + rationale + tags</span>
+                <span data-tr="-&gt; dondurulmuş kanıt (digest'li)">-&gt; frozen evidence (digested)</span>
+                <span data-tr="-&gt; <b>isimli insan kararı</b>">-&gt; <b>named human decision</b></span>
+                <span data-tr="-&gt; opsiyonel imzalı attestation">-&gt; optional signed attestation</span>
+              </div>
+              <p data-tr="Her adım bir sonraki adımın girdisini hash ile bağlar. Sonuçta üçüncü bir kişi, sunucuya erişmeden kararın hangi baytlara dayandığını doğrulayabilir.">Each step hash-binds the input of the next one. In the end a third party can verify which bytes the decision rested on, without access to any server.</p>
+            </article>
+            <article class="card">
+              <h3 data-tr="Yöntemi 30 saniyede görün">See the method in 30 seconds</h3>
+              <p data-tr="Aşağıdaki örnek gerçek bir review ekranının basitleştirilmiş hâli. Hangi yanıtın aday sürüme ait olduğu gösterilmiyor.">The example below is a simplified version of a real review screen. It never shows which answer belongs to the candidate version.</p>
+              <div class="callout" style="margin-bottom:14px" data-tr="<strong>Kullanıcı:</strong> “İade sürem doldu ama ürün kusurlu çıktı. Ne yapmalıyım?”"><strong>User:</strong> “My return window has closed but the product turned out to be faulty. What should I do?”</div>
+              <div class="demo-pair">
+                <button class="answer" data-ans="A"><b data-tr="Yanıt A">Answer A</b><p data-tr="Ürünün kusurlu olması, standart iade süresinden ayrı değerlendirilebilir. Sipariş numaranız ve kusuru gösteren görsellerle destek ekibine başvurun; garanti ve ayıplı ürün koşullarına göre değişim, onarım veya iade seçenekleri kontrol edilecektir.">A faulty product can be assessed separately from the standard return window. Contact support with your order number and photos showing the defect; replacement, repair or refund options will be checked against the warranty and faulty-goods terms.</p></button>
+                <button class="answer" data-ans="B"><b data-tr="Yanıt B">Answer B</b><p data-tr="İade süresi dolduğu için normal koşullarda iade edemezsiniz. Yine de müşteri hizmetleriyle iletişime geçip istisna talep edebilirsiniz. Kabul edilip edilmeyeceği mağazanın değerlendirmesine bağlıdır.">Because the return window has closed, you cannot normally return it. You can still contact customer service and ask for an exception. Whether it is accepted is up to the store.</p></button>
+              </div>
+              <div class="demo-actions">
+                <button class="button" data-verdict="equal-good" data-tr="İkisi de iyi">Both good</button>
+                <button class="button" data-verdict="equal-bad" data-tr="İkisi de yetersiz">Both inadequate</button>
+                <button class="button" data-verdict="abstain" data-tr="Çekimser">Abstain</button>
+              </div>
+              <div class="demo-out" id="demoOut"></div>
+              <div id="blindCheck" hidden>
+                <h3 style="margin:16px 0 8px" data-tr="Sizce hangisi yeni sürümdü?">Which one do you think was the new version?</h3>
+                <div class="demo-actions" style="margin-top:0">
+                  <button class="button" data-guess="A" data-tr="A idi">It was A</button>
+                  <button class="button" data-guess="B" data-tr="B idi">It was B</button>
+                  <button class="button" data-guess="skip" data-tr="Ayırt edemedim">Could not tell</button>
+                </div>
+                <div class="demo-out" id="guessOut"></div>
+              </div>
+            </article>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <h3 data-tr="Bu yöntem nereden geliyor">Where the method comes from</h3>
+              <p data-tr="Frontier lab'lar aynı yaklaşımı kullanıyor. OpenAI'ın GDPval çalışmasında uzman değerlendiriciler model ve insan çıktılarını <em>hangisinin AI olduğunu bilmeden</em> karşılaştırıyor, görev yazarları rubrik üretiyor ve OpenAI otomatik grader için “uzman değerlendiricilerin yerini alacak kadar güvenilir değil” diyor.">Frontier labs use the same approach. In OpenAI's GDPval work, expert reviewers compare model and human output <em>without knowing which is which</em>, task authors write the rubrics, and OpenAI states that its automated grader is not reliable enough to replace expert reviewers.</p>
+              <p style="margin-bottom:0" data-tr="Akademik literatür de LLM-as-judge'da pozisyon yanlılığı ve kendi çıktısını tercih etme eğilimini belgeliyor. Kör ve dengeli sıralama bu yüzden opsiyonel değil.">The academic literature also documents position bias and self-preference in LLM-as-judge setups. That is why blinding and order balancing are not optional.</p>
+            </article>
+            <article class="card">
+              <h3 data-tr="Ne iddia etmiyoruz">What we do not claim</h3>
+              <div class="rows">
+                <div class="row"><span data-tr="İstatistiksel yeterlilik kararı">Statistical sufficiency verdict</span><strong class="no" data-tr="Hayır">No</strong></div>
+                <div class="row"><span data-tr="Güven aralığı">Confidence intervals</span><strong class="no" data-tr="Hayır">No</strong></div>
+                <div class="row"><span data-tr="Otomatik onay">Automatic approval</span><strong class="no" data-tr="Hayır">No</strong></div>
+                <div class="row"><span data-tr="Değerlendirici dürüstlüğü garantisi">Guarantee of reviewer honesty</span><strong class="no" data-tr="Hayır">No</strong></div>
+                <div class="row"><span data-tr="Değerlendirici tahmin diagnostic'i">Reviewer-guess diagnostic</span><strong class="yes" data-tr="Raporlanır">Reported</strong></div>
+                <div class="row"><span data-tr="Betimsel sayımlar ve sınırlılıklar">Descriptive counts and limitations</span><strong class="yes" data-tr="Evet">Yes</strong></div>
+                <div class="row"><span data-tr="Kararın hangi kanıta dayandığı">Which evidence the decision used</span><strong class="yes" data-tr="Evet">Yes</strong></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="integrity">
+        <div class="eyebrow" data-tr="Neden taklit edilemez">Why it is hard to fake</div>
+        <h2 data-tr="Bir çalışma tertemiz görünüp hiçbir şey ifade etmeyebilir">A study can look spotless and mean nothing</h2>
+        <p class="lead" data-tr="Bir kaydın değeri, gizleyemediği şeyler kadardır. Aşağıdaki altı kontrolün her biri, kanıtı işe yaramaz hâle getiren somut bir kaçamağı kapatmak için var.">A record is worth exactly as much as the things it cannot hide. Each of the six checks below closes one concrete way a study can be worthless while looking fine.</p>
+
+        <div class="grid g3">
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-eyeoff"/></svg>
+            <h3 data-tr="Körlük ölçülür, iddia edilmez">Blinding is measured, not claimed</h3>
+            <p data-tr="Değerlendiriciye, tercihinden sonra hangisinin yeni sürüm olduğunu düşündüğü sorulur. %90 doğru tahmin güçlü bir uyarıdır; ancak v0.1 yalnız doğru, yanlış ve çekimser sayıları raporlar, otomatik “tuttu/tutmadı” etiketi üretmez. Yazılımda bir etiketi gizlemek, insanın çıkarım yapamayacağı anlamına gelmez.">After recording a preference, the reviewer is asked which one they believed was the new version. A 90% correct-guess rate is a strong warning, but v0.1 reports only correct, incorrect, and declined counts; it emits no automatic held/failed label. Hiding a label in software says nothing about what a person can infer.</p>
+          </article>
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-git"/></svg>
+            <h3 data-tr="Atama planı yeniden oynatılabilir">The assignment plan is replayable</h3>
+            <p data-tr="Rastgelelik tohumu dondurulmuş pakette açığa çıkar; hangi değerlendiricinin hangi case'i gördüğünü herkes yeniden üretebilir. Planlanıp hiç doldurulmamış karşılaştırmalar sayılır, böylece yarım kalmış bir çalışma küçük ve temiz bir çalışma gibi görünemez.">The random seed is revealed in the frozen bundle, so anyone can regenerate which reviewer saw which case. Comparisons that were planned but never filled are counted, so an unfinished study cannot present itself as a small clean one.</p>
+          </article>
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-lock"/></svg>
+            <h3 data-tr="Protokol önceden kaydedilir">The protocol is pre-registered</h3>
+            <p data-tr="Case seti, rubrik ve iki sürüm, ilk değerlendirmeden önce özetlenir. Sonucu beğenmeyip case setini değiştirerek tekrar çalıştırmak farklı bir ön kayıt özeti üretir; yani tekrar sessiz kalmaz, görünür olur.">The case set, the rubric and both versions are hashed before the first review. Disliking the result and re-running with a different case set produces a different pre-registration digest, so the re-run becomes visible instead of silent.</p>
+          </article>
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-users"/></svg>
+            <h3 data-tr="Değerlendirici uyumu raporlanır">Reviewer agreement is reported</h3>
+            <p data-tr="Birbiriyle uyuşan yedi kişiden çıkan 58-38 ile uyuşmayan yedi kişiden çıkan 58-38 aynı şey değildir. Gözlenen uyum raporlanır; şansa göre düzeltilmiş bir katsayı onun yerine geçemez, çünkü her düzeltme bir model varsayımı taşır.">58 to 38 from seven reviewers who agree is a different object from the same split from seven who do not. Observed agreement is reported, and no chance-corrected coefficient replaces it, because every correction embeds a model.</p>
+          </article>
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-file"/></svg>
+            <h3 data-tr="Önce gerileyen case'ler">Per-case regressions come first</h3>
+            <p data-tr="Toplam skor nadiren bir release'i durdurur. İnsanların harekete geçtiği sayı, eskiden çalışırken artık çalışmayan şu dokuz case'tir. Pakette bu liste var ve ilk okunması gereken alan odur.">The aggregate rarely stops a release. The number people act on is the nine specific cases that used to work and now do not. That list is in the bundle, and it is the field to read first.</p>
+          </article>
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-shield"/></svg>
+            <h3 data-tr="Doğrulama bizim aracımıza bağlı olmamalı">Verification must not depend on us</h3>
+            <p data-tr="Release kapısı: manifest, dizin kimliği ve review log bütünlüğü standart SHA-256 işlemleriyle doğrulanabilir olacak; bağımlılıksız POSIX verifier conformance vektörleriyle birlikte yayımlanacak.">Release gate: manifest, directory identity, and review-log integrity must be verifiable with standard SHA-256 operations; a dependency-free POSIX verifier will ship with the conformance vectors.</p>
+          </article>
+        </div>
+
+        <div class="callout warn" style="margin-top:16px" data-tr="<strong>Hiçbiri kötü niyeti engellemez.</strong> Yeterince kararlı biri yine de yanıltıcı bir çalışma üretebilir. Bu kontrollerin tamamı yalnızca tek bir şey yapar: bunu sessizce yapmayı imkânsızlaştırır. Projenin başka hiçbir yerde daha fazlasını iddia etmemesinin nedeni de bu."><strong>None of this prevents bad faith.</strong> Someone determined enough can still produce a misleading study. Every one of these checks does exactly one thing: it makes doing so impossible to do quietly. That is also why the project claims nothing stronger anywhere else.</div>
+      </section>
+
+      <section id="status">
+        <div class="eyebrow" data-tr="Yayın hazırlığı">Release readiness</div>
+        <h2 data-tr="P0: herkese açık ön taslak incelemesi">P0: public pre-draft design review</h2>
+        <p class="lead" data-tr="Bu depo, Apache-2.0 altında normatif olmayan ve herkese açık bir tasarım incelemesi olarak yayınlanmaya hazırlanıyor. Onaylanmış bir spesifikasyon veya çalışan ürün değil. İlk yürütülebilir kanıt, elle üretilmiş ve ikinci temiz ortamda bağımsız doğrulanmış örnek paket olacak.">This repository is being prepared for publication as a non-normative public design review under Apache-2.0. It is not an approved specification or working product. The first executable proof will be a hand-built example bundle independently verified in a second clean environment.</p>
+
+        <div class="grid split">
+          <article class="card">
+            <h3 data-tr="Bugün incelenebilir">Available for review now</h3>
+            <div class="rows">
+              <div class="row"><span data-tr="Kapsam ve non-goal'lar">Scope and non-goals</span><strong><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/SCOPE.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/SCOPE.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/tr/SCOPE.md" target="_blank" rel="noopener noreferrer" data-tr="Belgeyi aç">Open document</a></strong></div>
+              <div class="row"><span data-tr="Format ön taslağı">Format sketch</span><strong><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/SPEC-DRAFT.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/SPEC-DRAFT.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/tr/SPEC-DRAFT.md" target="_blank" rel="noopener noreferrer" data-tr="Belgeyi aç">Open document</a></strong></div>
+              <div class="row"><span data-tr="Mimari ve kararlar">Architecture and decisions</span><strong><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/ARCHITECTURE.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/ARCHITECTURE.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/tr/ARCHITECTURE.md" target="_blank" rel="noopener noreferrer" data-tr="Belgeyi aç">Open document</a></strong></div>
+              <div class="row"><span data-tr="Tehdit modeli">Threat model</span><strong><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/THREAT-MODEL.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/THREAT-MODEL.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/tr/THREAT-MODEL.md" target="_blank" rel="noopener noreferrer" data-tr="Belgeyi aç">Open document</a></strong></div>
+              <div class="row"><span data-tr="31 Temmuz landscape yenilemesi">31 July landscape refresh</span><strong><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/LANDSCAPE.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/LANDSCAPE.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/tr/LANDSCAPE.md" target="_blank" rel="noopener noreferrer" data-tr="Belgeyi aç">Open document</a></strong></div>
+              <div class="row"><span data-tr="Teslimat sırası">Delivery sequence</span><strong><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/ROADMAP.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/ROADMAP.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/docs/tr/ROADMAP.md" target="_blank" rel="noopener noreferrer" data-tr="Belgeyi aç">Open document</a></strong></div>
+              <div class="row"><span data-tr="Yayın checklist'i">Publication checklist</span><strong><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.tr.md" target="_blank" rel="noopener noreferrer" data-tr="Belgeyi aç">Open document</a></strong></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 data-tr="Henüz release edilmedi">Not released yet</h3>
+            <div class="rows">
+              <div class="row"><span data-tr="npm paketi ve CLI">npm package and CLI</span><strong class="no" data-tr="Yok">None</strong></div>
+              <div class="row"><span data-tr="JSON Schema ve test vektörleri">JSON Schema and test vectors</span><strong class="no" data-tr="Yok">None</strong></div>
+              <div class="row"><span data-tr="Tam örnek paket">Complete example bundle</span><strong class="no" data-tr="Yok">None</strong></div>
+              <div class="row"><span data-tr="Bağımsız doğrulayıcı">Independent verifier</span><strong class="no" data-tr="Yok">None</strong></div>
+              <div class="row"><span data-tr="GitHub Action">GitHub Action</span><strong class="no" data-tr="Yok">None</strong></div>
+            </div>
+          </article>
+        </div>
+
+        <article class="card" style="margin-top:14px">
+          <h3 data-tr="P0 dış blocker'ları">External P0 blockers</h3>
+          <div class="rows">
+            <div class="row"><span data-tr="Public Git repo + branch ruleset">Public Git repo + branch ruleset</span><strong class="no" data-tr="Bekliyor">Pending</strong></div>
+            <div class="row"><span data-tr="Private vulnerability reporting">Private vulnerability reporting</span><strong class="no" data-tr="Bekliyor">Pending</strong></div>
+            <div class="row"><span data-tr="CODEOWNERS ve issue template'leri">CODEOWNERS and issue templates</span><strong class="no" data-tr="Repo kimliği bekliyor">Needs repo identity</strong></div>
+            <div class="row"><span data-tr="Trademark ve domain kontrolü">Trademark and domain review</span><strong class="no" data-tr="Bekliyor">Pending</strong></div>
+            <div class="row"><span data-tr="Beş görsel için provenance ve metadata kaydı">Provenance and metadata record for five assets</span><strong class="yes" data-tr="Hazır">Ready</strong></div>
+          </div>
+          <p style="margin:12px 0 0;font-size:12.5px" data-tr="GitHub exact-name araması 31 Temmuz 2026'da sıfır sonuç verdi; iki aday npm sayfası 404 döndü. Bu bir rezervasyon veya hukuki izin değildir.">The exact-name GitHub search returned zero results on 31 July 2026; both candidate npm pages returned 404. This is not a reservation or legal clearance.</p>
+        </article>
+
+        <article class="card" style="margin-top:14px">
+          <h3 data-tr="Bir sonraki kanıt kapıları">Next evidence gates</h3>
+          <div class="steps">
+            <div class="step"><div><h3 data-tr="Gerçek kararları yeniden oynat">Replay real decisions</h3><p data-tr="Üç tasarım ortağının son iki release kararını mevcut araçlarıyla yeniden kur; ayrı bir kanıt katmanının tekrar kullanılmaya değer olup olmadığını ölç.">Reconstruct the last two release decisions from three design partners using their current tools; test whether a separate evidence layer is worth repeating.</p></div></div>
+            <div class="step"><div><h3 data-tr="Bir paketi elle üret">Build one bundle by hand</h3><p data-tr="Metin editörü ve SHA-256 dışında araç kullanmadan tam bir paketi üret ve ikinci temiz ortamda doğrula. Yazılabilir olmayan format implemente edilmez.">Produce a complete bundle with no tooling beyond a text editor and SHA-256, then verify it in a second clean environment. A format that cannot be written by hand does not get implemented.</p></div></div>
+            <div class="step"><div><h3 data-tr="Taslağı vektörlerle dondur">Freeze the draft with vectors</h3><p data-tr="Her normatif gereksinimi en az bir geçerli veya geçersiz test vektörüne bağla; ancak bundan sonra referans CLI'a başla.">Map every normative requirement to at least one valid or invalid test vector; only then begin the reference CLI.</p></div></div>
+          </div>
+        </article>
+      </section>
+
+      <section id="requirements">
+        <div class="eyebrow" data-tr="Tasarım kısıtları">Design constraints</div>
+        <h2 data-tr="Referans implementasyon ne kadar küçük kalmalı">How small the reference implementation must stay</h2>
+        <p class="lead" data-tr="Bunlar bugün kurulabilecek bir ürünün sistem gereksinimleri değil; R2 referans CLI'ın karşılamak zorunda olduğu mühendislik sınırları. Her madde test veya release kapısıyla doğrulanacak.">These are not system requirements for a product available today. They are engineering constraints the R2 reference CLI must satisfy, each backed by a test or release gate.</p>
+
+        <div class="grid split">
+          <div class="grid g2">
+            <article class="card">
+              <h3 data-tr="Planlanan referans stack">Planned reference stack</h3>
+              <div class="rows">
+                <div class="row"><span data-tr="Runtime">Runtime</span><strong>Node.js 24 LTS</strong></div>
+                <div class="row"><span data-tr="Dil ve modül sistemi">Language and modules</span><strong>TypeScript · ESM</strong></div>
+                <div class="row"><span data-tr="Dağıtım birimi">Distribution unit</span><strong data-tr="Tek npm paketi">One npm package</strong></div>
+                <div class="row"><span data-tr="Review UI">Review UI</span><strong data-tr="Browser-native">Browser-native</strong></div>
+                <div class="row"><span data-tr="Yerel listener">Local listener</span><strong>127.0.0.1</strong></div>
+                <div class="row"><span data-tr="Testler">Tests</span><strong data-tr="Node runner + dar Playwright">Node runner + focused Playwright</strong></div>
+              </div>
+            </article>
+            <article class="card">
+              <h3 data-tr="Bilinçli olarak yok">Intentionally absent</h3>
+              <div class="rows">
+                <div class="row"><span data-tr="Veritabanı">Database</span><strong class="no" data-tr="Yok">None</strong></div>
+                <div class="row"><span data-tr="Web framework veya React runtime">Web framework or React runtime</span><strong class="no" data-tr="Yok">None</strong></div>
+                <div class="row"><span data-tr="Provider veya shell runner">Provider or shell runner</span><strong class="no" data-tr="Yok">None</strong></div>
+                <div class="row"><span data-tr="Install script">Install script</span><strong class="no" data-tr="Yok">None</strong></div>
+                <div class="row"><span data-tr="Telemetri veya network call">Telemetry or network call</span><strong class="no" data-tr="Yok">None</strong></div>
+                <div class="row"><span data-tr="Auth veya public review linki">Auth or public review link</span><strong class="no" data-tr="Yok">None</strong></div>
+              </div>
+            </article>
+          </div>
+          <article class="card">
+            <h3 data-tr="Planlanan workflow girdileri">Planned workflow inputs</h3>
+            <div class="rows">
+              <div class="row"><span data-tr="Baseline capability klasörü">Baseline capability folder</span><strong data-tr="Git veya dosya">Git or files</strong></div>
+              <div class="row"><span data-tr="Candidate capability klasörü">Candidate capability folder</span><strong data-tr="Git veya dosya">Git or files</strong></div>
+              <div class="row"><span data-tr="Case seti">Case set</span><strong>JSON / JSONL</strong></div>
+              <div class="row"><span data-tr="İki çıktı seti">Two output sets</span><strong data-tr="Mevcut eval aracınızdan">From your existing eval tool</strong></div>
+              <div class="row"><span data-tr="Değerlendirici zamanı">Reviewer time</span><strong data-tr="En pahalı girdi">The most expensive input</strong></div>
+            </div>
+            <div class="callout" style="margin-top:14px" data-tr="<strong>En pahalı bağımlılık insan zamanı.</strong> Format ancak aynı ekip ikinci bir release kararında da gönüllü olarak kullanırsa değerini kanıtlamış olacak."><strong>The most expensive dependency is human time.</strong> The format proves its value only if the same team chooses to use it for a second release decision.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="deploy">
+        <div class="eyebrow" data-tr="Planlanan kullanım şekilleri">Planned operating recipes</div>
+        <h2 data-tr="Üç hedef akış, hiçbirinde bizim işlettiğimiz bir servis yok">Three target flows, none of them run by us</h2>
+        <p class="lead" data-tr="Bunlar destek matrisi değil; formatın ve ilerideki referans implementasyonun doğrulanacağı deployment-neutral tarifler. Yerel akış zorunlu taban, CI attestation ve paylaşımlı paket ise opsiyonel profiller.">This is not a support matrix. These are deployment-neutral recipes against which the format and future reference implementation will be validated. The local flow is the required baseline; CI attestation and shared bundles are optional profiles.</p>
+
+        <figure class="figure-wide">
+          <img src="assets/where-it-runs.jpg" width="1200" height="800"
+               alt="Illustration: a laptop, documents, a magnifying glass and a padlock sit inside a red boundary. A cloud, a server rack and a globe sit outside it, each crossed out."
+               data-tr-alt="İllüstrasyon: kırmızı bir sınırın içinde bir dizüstü, belgeler, büyüteç ve kilit var. Sınırın dışında ise üzeri çizili bir bulut, sunucu kabini ve dünya küresi bulunuyor.">
+          <figcaption data-tr="Tasarım hedefi: zorunlu akış tek bir kullanıcı makinesinin sınırında kalır. CI imzası ve kontrollü dosya paylaşımı yalnızca isteğe bağlı profillerdir.">Design target: the mandatory flow stays within one user's machine. CI signing and deliberate file transfer are optional profiles only.</figcaption>
+        </figure>
+
+        <div class="segment" id="topoSeg" style="margin-bottom:16px">
+          <button class="active" data-topo="local"></button>
+          <button data-topo="ci"></button>
+          <button data-topo="shared"></button>
+        </div>
+
+        <div class="grid split">
+          <article class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
+              <h3 id="topoTitle" style="margin:0"></h3>
+              <span class="badge accent" id="topoBadge"></span>
+            </div>
+            <div class="flow" id="topoFlow"></div>
+            <div class="callout" id="topoNote"></div>
+          </article>
+
+          <div class="grid">
+            <article class="card">
+              <h3 data-tr="Kaynak hesaplayıcı">Resource calculator</h3>
+              <div class="field">
+                <div class="field-row"><label for="caseR" data-tr="Case sayısı">Number of cases</label><output id="caseO">80</output></div>
+                <input id="caseR" type="range" min="20" max="500" value="80" step="10">
+              </div>
+              <div class="field">
+                <div class="field-row"><label for="revR" data-tr="Case başına değerlendirme">Reviews per case</label><output id="revO">3</output></div>
+                <input id="revR" type="range" min="1" max="10" value="3">
+              </div>
+              <div class="field">
+                <label for="szS" data-tr="Ortalama çıktı boyutu">Average output size</label>
+                <select id="szS">
+                  <option value="8" data-tr="Kısa metin · 8 KB">Short text · 8 KB</option>
+                  <option value="32" selected data-tr="Uzun metin/JSON · 32 KB">Long text or JSON · 32 KB</option>
+                  <option value="256" data-tr="Büyük structured JSON · 256 KB">Large structured JSON · 256 KB</option>
+                </select>
+              </div>
+              <div class="estimate">
+                <div class="est"><span data-tr="Karşılaştırma">Comparisons</span><strong id="estCmp">240</strong></div>
+                <div class="est"><span data-tr="Paket boyutu">Bundle size</span><strong id="estSize">6 MB</strong></div>
+                <div class="est"><span data-tr="İnsan eforu">Human effort</span><strong id="estTime">4.0 h</strong></div>
+              </div>
+              <p style="margin:12px 0 0;font-size:12px" data-tr="Efor tahmini karşılaştırma başına ortalama bir dakika varsayar. Kendi ölçümünüzle değiştirin.">The effort estimate assumes one minute per comparison on average. Replace it with your own measurement.</p>
+            </article>
+            <article class="card">
+              <h3 data-tr="Profil durumu">Profile status</h3>
+              <div class="rows">
+                <div class="row"><span data-tr="Yerel, CI yok">Local, no CI</span><strong class="yes" data-tr="Zorunlu tasarım tabanı">Required baseline</strong></div>
+                <div class="row"><span data-tr="Paylaşımlı paket review">Shared-bundle review</span><strong data-tr="V0 hedefi">V0 target</strong></div>
+                <div class="row"><span data-tr="CI attestation">CI attestation</span><strong data-tr="R4 hedefi">R4 target</strong></div>
+                <div class="row"><span data-tr="Hosted veya public review">Hosted or public review</span><strong class="no" data-tr="Kapsam dışı">Out of scope</strong></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="format">
+        <div class="eyebrow" data-tr="Format ve doğrulama">Format and verification</div>
+        <h2 data-tr="Tek yeni sözleşme: kör değerlendirme predicate'i">One new contract: the blind-evaluation predicate</h2>
+        <p class="lead" data-tr="Proje yeni bir envelope, imza şeması veya transparency log icat etmiyor. Kanıt in-toto Statement v1 içinde taşınıyor; imza gerekirse DSSE kullanılıyor. Yeni tanımlanan ve uyumluluk vektörleriyle kanıtlanması gereken parça, kör insan değerlendirmesini tarif eden predicate.">The project does not invent an envelope, signature scheme, or transparency log. Evidence travels inside an in-toto Statement v1 and uses DSSE when signing is needed. The new part, which must be proven through conformance vectors, is the predicate describing blind human evaluation.</p>
+
+        <div class="grid split">
+          <article class="card">
+            <h3 data-tr="Örnek statement">Example statement</h3>
+            <pre class="code"><code>{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    { "name": "capability/candidate",
+      "digest": { "dirHash": "…" } },
+    { "name": "source/revision",
+      "digest": { "gitCommit": "…" } },
+    { "name": "evidence-bundle.tar",
+      "digest": { "sha256": "…" } }
+  ],
+  "predicateType":
+    "https://&lt;your-domain&gt;/BlindEvaluation/v0.1",
+  "predicate": {
+    "protocol": { "mode": "pairwise", "assignmentSeed": "…",
+                  "preRegistration": { "digest": { … } } },
+    "reviews": { "plannedComparisons": 110,
+                 "includedComparisons": 104, "unfilledAssignments": 3 },
+    "blindingCheck": { "guessesRecorded": 92, "guessedCorrectly": 49 },
+    "results": {
+      "candidatePreferred": 58, "baselinePreferred": 38, "ties": 6,
+      "agreement": { "agreeingReviewerPairs": 96,
+                     "comparableReviewerPairs": 140 },
+      "byCase": { "casesPreferringCandidate": 31,
+                  "casesPreferringBaseline": 9 }
+    },
+    "limitations": [
+      { "code": "reviewer-pool-single-organization",
+        "detail": { "name": "limitations/reviewer-pool.json",
+                    "digest": { "sha256": "…" } } }
+    ]
+  }
+}</code></pre>
+            <div class="callout warn" style="margin-top:14px" data-tr="<strong>Gizlilik kuralı:</strong> Predicate yalnız sabit kimlikler, toplamlar, zaman damgaları ve digest'ler taşır. Serbest metin, değerlendirici kimliği, prompt ve çıktı asla girmez. Public repo'da üretilen attestation herkese açık ve kalıcı bir şeffaflık günlüğüne yazılır; geri alınamaz."><strong>Privacy rule:</strong> the predicate carries only stable identifiers, totals, timestamps, and digests. Free text, reviewer identities, prompts, and outputs never go in. An attestation produced in a public repo is written to a public, permanent transparency log and cannot be withdrawn.</div>
+          </article>
+
+          <div class="grid">
+            <article class="card">
+              <h3 data-tr="Planlanan doğrulama sözleşmesi">Planned verification contract</h3>
+              <p data-tr="Bir verifier, serbest metni yorumlamadan şu zinciri yeniden kurabilmeli:">A verifier must reconstruct this chain without interpreting free text:</p>
+              <div class="chain">
+                <span data-tr="1 · manifest path ve SHA-256 eşleşmeleri">1 · manifest path and SHA-256 matches</span>
+                <span data-tr="2 · capability <b>dirHash</b> özeti">2 · capability <b>dirHash</b> summary</span>
+                <span data-tr="3 · seed commitment ve atama planı replay'i">3 · seed commitment and assignment replay</span>
+                <span data-tr="4 · review, exclusion ve per-case sayımlarının yeniden üretimi">4 · review, exclusion, and per-case recount</span>
+                <span data-tr="5 · kararın artefakt ve evidence digest'lerine bağı">5 · decision binding to artifact and evidence digests</span>
+              </div>
+              <div class="callout" data-tr="<strong>Kritik ayrım:</strong> Belgedeki kısa <code>find | xargs | sha256sum</code> hattı algoritmayı açıklayan bir eşdeğer; üretim verifier'ı değil. Yayımlanacak POSIX verifier boşluk, tab, baştaki tire, non-ASCII dosya adı ve boş dizin vektörlerini geçmek zorunda."><strong>Critical distinction:</strong> the short <code>find | xargs | sha256sum</code> pipeline in the draft is an explanatory equivalent, not the production verifier. The published POSIX verifier must pass vectors for spaces, tabs, leading dashes, non-ASCII file names, and an empty directory.</div>
+            </article>
+            <article class="card">
+              <h3 data-tr="Uyumluluk kapısı">Conformance gate</h3>
+              <p data-tr="Vektörler henüz yayımlanmadı. Yayımlandığında “uyumlu”, belirli bir spec sürümünün tüm zorunlu vektörlerini geçmek anlamına gelecek; kendi beyanı sayılmayacak.">Vectors are not published yet. Once they are, “conformant” will mean passing every required vector for a stated specification version; self-declaration will not count.</p>
+              <div class="rows">
+                <div class="row"><span data-tr="Core profil">Core profile</span><strong data-tr="R1'de tanımlanacak">Defined at R1</strong></div>
+                <div class="row"><span data-tr="Signed profil">Signed profile</span><strong data-tr="Opsiyonel">Optional</strong></div>
+                <div class="row"><span data-tr="CI profil">CI profile</span><strong data-tr="R4 hedefi">R4 target</strong></div>
+              </div>
+              <p style="margin:12px 0 0;font-size:12.5px" data-tr="Plan: vektörler dil bağımsız veri dosyaları olacak; TypeScript verifier üreticiyle hiçbir modül paylaşmayacak; core digest kontrolleri ayrıca bağımlılıksız bir POSIX verifier ile çalışacak.">Plan: vectors will be language-neutral data files; the TypeScript verifier will share no modules with the producer; core digest checks will also run through a dependency-free POSIX verifier.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="fit">
+        <div class="eyebrow" data-tr="Karar yardımı">Decision aid</div>
+        <h2 data-tr="Size uygun mu">Is this for you</h2>
+        <p class="lead" data-tr="Bu yöntem herkes için değil. Değerlendirici zamanı pahalıdır; getirisi yoksa kurmayın. Aşağıdaki kutuları işaretleyin.">This method is not for everyone. Reviewer time is expensive; if it does not pay off, do not adopt it. Tick the boxes below.</p>
+
+        <div class="grid split">
+          <article class="card">
+            <label class="check"><input type="checkbox" data-fit> <span data-tr="Capability artefaktlarımız Git'te tutuluyor ve düzenli olarak değişiyor.">Our capability artifacts live in Git and change regularly.</span></label>
+            <label class="check"><input type="checkbox" data-fit> <span data-tr="Haftalık veya aylık bir release ritmimiz var.">We have a weekly or monthly release rhythm.</span></label>
+            <label class="check"><input type="checkbox" data-fit> <span data-tr="Kalite yargısı öznel; rubrik veya otomatik test tek başına çözmüyor.">Quality judgement is subjective; rubrics or automated tests alone do not settle it.</span></label>
+            <label class="check"><input type="checkbox" data-fit> <span data-tr="Yanlış bir release'in maliyeti, inceleme maliyetinden yüksek.">A bad release costs more than the review costs.</span></label>
+            <label class="check"><input type="checkbox" data-fit> <span data-tr="Alan uzmanı değerlendiricilere erişimimiz var.">We have access to domain-expert reviewers.</span></label>
+            <label class="check"><input type="checkbox" data-fit> <span data-tr="Denetim, devir teslim veya araç bağımsızlığı baskısı hissediyoruz.">We feel pressure around audit, handover or tool independence.</span></label>
+            <div class="verdict" id="fitOut"></div>
+          </article>
+
+          <div class="grid">
+            <article class="card">
+              <h3 data-tr="İyi uyan durumlar">Good fit</h3>
+              <p style="margin-bottom:8px" data-tr="Müşteri destek agent'ları, iç copilot'lar, hukuk ve uyum metinleri, agent tool-policy değişiklikleri.">Customer support agents, internal copilots, legal and compliance text, agent tool-policy changes.</p>
+              <h3 style="margin-top:14px" data-tr="Zayıf uyan durumlar">Poor fit</h3>
+              <p style="margin-bottom:0" data-tr="Tek geliştirici, nadiren değişen prompt, güvenilir kod tabanlı puanlamayla çözülen görevler ve ayrıntılı rubriğe indirgenebilen işler.">A single developer, a rarely changing prompt, tasks solved by reliable code-based scoring, and work that reduces to a detailed rubric.</p>
+            </article>
+            <article class="card">
+              <h3 data-tr="Beklenen fayda">Expected benefit</h3>
+              <div class="rows">
+                <div class="row"><span data-tr="Kararın yeniden üretilebilirliği">Reproducibility of the decision</span><strong class="yes" data-tr="Doğrulanabilir">Verifiable</strong></div>
+                <div class="row"><span data-tr="Denetim ve devir teslim hazırlığı">Audit and handover prep</span><strong data-tr="Kısalır">Shorter</strong></div>
+                <div class="row"><span data-tr="Araç veya sağlayıcı değişimi">Changing tool or vendor</span><strong data-tr="Kanıt taşınır">Evidence moves with you</strong></div>
+                <div class="row"><span data-tr="Taraflı değerlendirme riski">Biased review risk</span><strong data-tr="Azalır">Reduced</strong></div>
+              </div>
+              <p style="margin:12px 0 0;font-size:12.5px" data-tr="Bu getiriler pilot ölçümüyle doğrulanmalı. Sayısal bir vaat vermiyoruz.">These benefits must be confirmed by your own pilot. We promise no numbers.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="project">
+        <div class="eyebrow" data-tr="Proje ve süreklilik">Project and continuity</div>
+        <h2 data-tr="Yönetişim artık yazılı; dış ayarlar hâlâ kapı">Governance is written; external settings remain gates</h2>
+
+        <div class="grid g3">
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-scale"/></svg>
+            <h3 data-tr="P0 lisansı hazır">P0 license is present</h3>
+            <p data-tr="Bu public tasarım deposu Apache-2.0. Normatif spec, CLA/scope/notices/governance paketi tamamlanmış ayrı Community Specification deposuna taşınacak.">This public design repository is Apache-2.0. The normative spec moves to a separate Community Specification repository only with its CLA, scope, notices, and governance package complete.</p>
+            <a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" data-tr="Lisansı oku">Read the license</a>
+          </article>
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-users"/></svg>
+            <h3 data-tr="Yönetişim">Governance</h3>
+            <p data-tr="Tek bakımcı durumu, bus factor 1, itiraz yolu, halef planı ve makinece okunabilir proje durumu artık repoda. Bu süreç industry consensus iddiası taşımıyor.">Single-maintainer status, bus factor 1, objection path, succession plan, and machine-readable project status are now in the repository. This process makes no industry-consensus claim.</p>
+            <a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/GOVERNANCE.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/GOVERNANCE.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/GOVERNANCE.tr.md" target="_blank" rel="noopener noreferrer" data-tr="Yönetişim">Governance</a> · <a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/CONTRIBUTING.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/CONTRIBUTING.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/CONTRIBUTING.tr.md" target="_blank" rel="noopener noreferrer" data-tr="Katkı süreci">Contributing</a> · <a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/SECURITY.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/SECURITY.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/SECURITY.tr.md" target="_blank" rel="noopener noreferrer" data-tr="Güvenlik">Security</a>
+          </article>
+          <article class="card">
+            <svg class="icon" style="color:var(--cp-accent)"><use href="#i-shield"/></svg>
+            <h3 data-tr="Release hardening">Release hardening</h3>
+            <p data-tr="İlk npm release; stage-only trusted publishing, 2FA onayı, provenance, SBOM, clean tarball install ve SHA-pinned Action kapılarını geçmek zorunda.">The first npm release must pass stage-only trusted publishing, 2FA approval, provenance, SBOM, clean-tarball install, and SHA-pinned Action gates.</p>
+            <a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.tr.md" target="_blank" rel="noopener noreferrer" data-tr="Yayın checklist'ini oku">Read the publication checklist</a>
+          </article>
+        </div>
+
+        <div class="grid split" style="margin-top:14px">
+          <article class="card">
+            <h3 data-tr="Şimdi en değerli girdiler">Most valuable inputs now</h3>
+            <div class="rows">
+              <div class="row"><span data-tr="Geçmiş bir release kararını yeniden oynatmak">Replay a past release decision</span><strong data-tr="Şimdi gerekli">Needed now</strong></div>
+              <div class="row"><span data-tr="Elle örnek paket üretmek">Build a sample bundle by hand</span><strong data-tr="Şimdi gerekli">Needed now</strong></div>
+              <div class="row"><span data-tr="Spec belirsizliğine itiraz etmek">Challenge a spec ambiguity</span><strong data-tr="Yüksek etki">High impact</strong></div>
+              <div class="row"><span data-tr="Test vektörü tasarlamak">Design a test vector</span><strong data-tr="R1 girdisi">R1 input</strong></div>
+              <div class="row"><span data-tr="Bağımsız implementasyon yazmak">Write an independent implementation</span><strong data-tr="R1 sonrasında">After R1</strong></div>
+            </div>
+          </article>
+          <article class="card">
+            <h3 data-tr="Planlanan başarı sinyalleri">Planned success signals</h3>
+            <p data-tr="Yıldız veya indirme sayısıyla değil. Bu kategoride her iki metrik de gerçek kullanımdan büyük ölçüde sapıyor.">Not by stars or downloads. In this category both metrics diverge sharply from real use.</p>
+            <div class="rows">
+              <div class="row"><span data-tr="Tekrar kullanan dış ekip">Outside team using it twice</span><strong class="yes" data-tr="Birincil">Primary</strong></div>
+              <div class="row"><span data-tr="Bağımsız doğrulanan paket">Independently verified bundle</span><strong class="yes" data-tr="Birincil">Primary</strong></div>
+              <div class="row"><span data-tr="Bağımsız implementasyon">Independent implementation</span><strong class="yes" data-tr="En güçlü">Strongest</strong></div>
+              <div class="row"><span data-tr="GitHub yıldızı">GitHub stars</span><strong class="no" data-tr="Başarı ölçütü değil">Not a success metric</strong></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="foot-inner">
+      <div data-tr="Release Evidence Kit · P0 herkese açık ön taslak · Henüz implementasyon veya uyumluluk iddiası yok">Release Evidence Kit · P0 public pre-draft · No implementation or conformance claim yet</div>
+      <div><a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PROJECT-STATUS.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PROJECT-STATUS.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PROJECT-STATUS.tr.md" target="_blank" rel="noopener noreferrer" data-tr="Proje durumu">Project status</a> · <a href="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.md" data-href-en="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.md" data-href-tr="https://github.com/kivancakdeniz/release-evidence-kit/blob/main/PUBLICATION-CHECKLIST.tr.md" target="_blank" rel="noopener noreferrer" data-tr="Yayın checklist'i">Publication checklist</a> · Apache-2.0</div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"><svg class="icon"><use href="#i-check"/></svg><span id="toastTxt"></span></div>
+
+  <script>
+    const qs = (s, r = document) => r.querySelector(s);
+    const qsa = (s, r = document) => [...r.querySelectorAll(s)];
+
+    const S = {
+      en: {
+        locale: "en-GB",
+        title: "Release Evidence Kit | Public pre-draft design review",
+        copied: "Copied to clipboard",
+        copyFail: "The browser blocked copying",
+        hours: "h",
+        demoIdle: "Make a choice. In real use your preference is written, together with your rationale, to an append-only JSONL log.",
+        demoPick: (x) => `Answer ${x} selected. The record carries only an opaque presentation id; which version you chose is not resolved until after the decision.`,
+        demoTie: "Ties and abstentions are excluded from the preference count and reported separately.",
+        guessMade: "Recorded. Only totals leave this screen: 92 guesses, 49 correct. Distance from one half in either direction is a warning that the arms may have been distinguishable, but v0.1 does not turn that diagnostic into an automatic held/failed verdict.",
+        guessSkip: "Recorded as declined. Declines are counted separately and never treated as a wrong guess, so a reviewer is never pushed into inventing a hunch.",
+        topo: {
+          local: {
+            tab: "Local, no CI", title: "Local, no CI", badge: "Required V0 baseline",
+            nodes: [
+              { t: "Git + your eval tool", s: "Promptfoo, a JSON export, or your own runner", i: "#i-git" },
+              { t: "Release Evidence CLI", s: "Bundle · blind plan · freeze · verify", i: "#i-terminal", p: true },
+              { t: "Loopback review", s: "Opaque A/B · rationale · tags", i: "#i-eyeoff" },
+              { t: "Portable bundle", s: "JSON · JSONL · dirHash", i: "#i-package" }
+            ],
+            note: "<strong>Design target:</strong> this is the first flow the reference implementation must prove. It must work without hosted CI, including on self-hosted Git and air-gapped environments."
+          },
+          ci: {
+            tab: "CI attestation", title: "CI attestation", badge: "Optional R4 profile",
+            nodes: [
+              { t: "CI job", s: "Verifies the bundle", i: "#i-terminal" },
+              { t: "in-toto statement", s: "Custom predicate · DSSE", i: "#i-file", p: true },
+              { t: "Sigstore signature", s: "Short-lived certificate · timestamp", i: "#i-lock" },
+              { t: "Consumer verification", s: "Platform CLI or a Sigstore client", i: "#i-shield" }
+            ],
+            note: "<strong>Planned caution:</strong> anyone who compromises the workflow that produces the attestation can falsify predicate content; only the signing certificate and timestamp sit outside that workflow. The bundle must therefore remain independently verifiable."
+          },
+          shared: {
+            tab: "Shared bundle", title: "Shared bundle", badge: "Planned V0 profile",
+            nodes: [
+              { t: "Owner builds the bundle", s: "Including the blind assignment plan", i: "#i-package", p: true },
+              { t: "Copy goes to the reviewer", s: "File transfer · no account", i: "#i-users" },
+              { t: "Offline review", s: "On their own machine", i: "#i-eyeoff" },
+              { t: "Append-only log returns", s: "Merged by digest", i: "#i-file" }
+            ],
+            note: "<strong>Design target:</strong> support multi-reviewer studies without identity, invitations, or reservations. The recipe deliberately trades convenience for a smaller trust boundary."
+          }
+        },
+        verdicts: [
+          { min: 0, t: "Nothing selected yet", d: "As you tick the boxes, an honest assessment will appear here." },
+          { min: 1, t: "Probably not needed", d: "Under these conditions the cost of blind human review exceeds its return. Your existing automated eval is most likely enough." },
+          { min: 3, t: "Borderline", d: "Try it by replaying one real release decision. If you see no value, do not adopt it — that is a valid outcome too." },
+          { min: 5, t: "Looks like a fit", d: "Start with the local flow, make two real decisions, and measure whether blind review changed the outcome." }
+        ]
+      },
+      tr: {
+        locale: "tr-TR",
+        title: "Release Evidence Kit | Herkese açık ön taslak incelemesi",
+        copied: "Panoya kopyalandı",
+        copyFail: "Tarayıcı kopyalamayı engelledi",
+        hours: "saat",
+        demoIdle: "Bir seçim yapın. Gerçek kullanımda tercihiniz, gerekçenizle birlikte append-only bir JSONL kaydına yazılır.",
+        demoPick: (x) => `Yanıt ${x} seçildi. Kayıt yalnız opaque bir sunum kimliği taşır; hangi sürümün seçildiği karar sonrasına kadar çözülmez.`,
+        demoTie: "Eşitlik veya çekimser kaydı da tercih sayımına girmez, ayrı raporlanır.",
+        guessMade: "Kaydedildi. Bu ekrandan yalnız toplamlar çıkar: 92 tahmin, 49 doğru. Oranın yarıdan iki yönde de uzaklaşması, kolların ayırt edilebilir olduğuna dair bir uyarıdır; ancak v0.1 bu diagnostic'i otomatik tuttu/kalmadı verdict'ine çevirmez.",
+        guessSkip: "Çekimser olarak kaydedildi. Çekimserler ayrı sayılır ve asla yanlış tahmin sayılmaz; böylece kimse zorla bir sezgi uydurmak zorunda kalmaz.",
+        topo: {
+          local: {
+            tab: "Yerel, CI yok", title: "Yerel, CI yok", badge: "Zorunlu V0 tabanı",
+            nodes: [
+              { t: "Git + eval aracınız", s: "Promptfoo, JSON export veya kendi runner'ınız", i: "#i-git" },
+              { t: "Release Evidence CLI", s: "Paketle · kör plan · dondur · doğrula", i: "#i-terminal", p: true },
+              { t: "Loopback review", s: "Opaque A/B · gerekçe · etiket", i: "#i-eyeoff" },
+              { t: "Taşınabilir paket", s: "JSON · JSONL · dirHash", i: "#i-package" }
+            ],
+            note: "<strong>Tasarım hedefi:</strong> referans implementasyon önce bu akışı kanıtlamalı. Hosted CI olmadan, self-hosted Git ve air-gapped ortamlarda çalışmalı."
+          },
+          ci: {
+            tab: "CI ile attestation", title: "CI ile attestation", badge: "Opsiyonel R4 profili",
+            nodes: [
+              { t: "CI işi", s: "Paketi doğrular", i: "#i-terminal" },
+              { t: "in-toto statement", s: "Custom predicate · DSSE", i: "#i-file", p: true },
+              { t: "Sigstore imza", s: "Kısa ömürlü sertifika · zaman damgası", i: "#i-lock" },
+              { t: "Tüketici doğrulaması", s: "Platform CLI veya Sigstore istemcisi", i: "#i-shield" }
+            ],
+            note: "<strong>Planlanan uyarı:</strong> Attestation'ı üreten workflow'u ele geçiren biri predicate içeriğini sahteleyebilir; yalnız imza sertifikası ve zaman damgası workflow'un kontrolü dışındadır. Bu yüzden paketin kendisi bağımsız doğrulanabilir kalmalı."
+          },
+          shared: {
+            tab: "Paylaşımlı paket", title: "Paylaşımlı paket", badge: "Planlanan V0 profili",
+            nodes: [
+              { t: "Sahip paketi üretir", s: "Kör atama planı dahil", i: "#i-package", p: true },
+              { t: "Değerlendiriciye kopya", s: "Dosya transferi · hesap yok", i: "#i-users" },
+              { t: "Çevrimdışı inceleme", s: "Kendi makinesinde", i: "#i-eyeoff" },
+              { t: "Append-only log döner", s: "Digest ile birleştirilir", i: "#i-file" }
+            ],
+            note: "<strong>Tasarım hedefi:</strong> çok değerlendiricili çalışmayı kimlik sistemi, davet veya rezervasyon kurmadan desteklemek. Reçete kolaylıktan feragat edip güven sınırını küçük tutar."
+          }
+        },
+        verdicts: [
+          { min: 0, t: "Henüz seçim yapılmadı", d: "Kutuları işaretledikçe burada dürüst bir değerlendirme çıkacak." },
+          { min: 1, t: "Muhtemelen gerek yok", d: "Bu koşullarda kör insan değerlendirmesinin maliyeti getirisini aşar. Mevcut otomatik eval'iniz büyük olasılıkla yeterli." },
+          { min: 3, t: "Sınırda", d: "Tek bir gerçek release kararını yeniden oynatarak deneyin. Değer görmezseniz kurmayın; bu sonuç da geçerli bir sonuçtur." },
+          { min: 5, t: "Uygun görünüyor", d: "Yerel akışla başlayın, iki gerçek karar verin ve kör değerlendirmenin sonucu değiştirip değiştirmediğini ölçün." }
+        ]
+      }
+    };
+
+    let lang = "en";
+    let topoKey = "local";
+    let demoState = { kind: "idle", value: "" };
+    let guessState = null;
+
+    /* Theme */
+    qs("#themeIcon").setAttribute("href", document.documentElement.dataset.theme === "dark" ? "#i-sun" : "#i-moon");
+    qs("#themeBtn").addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      qs("#themeIcon").setAttribute("href", next === "dark" ? "#i-sun" : "#i-moon");
+    });
+
+    /* Language */
+    function applyLang(next) {
+      lang = next;
+      document.documentElement.lang = next;
+      document.documentElement.dataset.lang = next;
+      document.title = S[next].title;
+      qsa("[data-href-en]").forEach((el) => {
+        el.href = next === "tr" ? el.dataset.hrefTr : el.dataset.hrefEn;
+      });
+      qsa("[data-tr]").forEach((el) => {
+        if (el.dataset.en === undefined) el.dataset.en = el.innerHTML.trim();
+        el.innerHTML = next === "tr" ? el.dataset.tr : el.dataset.en;
+      });
+      qsa("[data-tr-alt]").forEach((el) => {
+        if (el.dataset.enAlt === undefined) el.dataset.enAlt = el.getAttribute("alt") || "";
+        el.setAttribute("alt", next === "tr" ? el.dataset.trAlt : el.dataset.enAlt);
+      });
+      const how = qs("#howImg");
+      how.src = next === "tr" ? how.dataset.srcTr : how.dataset.srcEn;
+      qsa(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === next)));
+      qsa("[data-topo]").forEach((b) => { b.textContent = S[lang].topo[b.dataset.topo].tab; });
+      renderTopo();
+      renderDemo();
+      calc();
+      fit();
+    }
+    qsa(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+
+    /* Toast + copy */
+    function toast(msg) {
+      const t = qs("#toast");
+      qs("#toastTxt").textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toast.t);
+      toast.t = setTimeout(() => t.classList.remove("show"), 2200);
+    }
+    qsa("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy); toast(S[lang].copied); }
+      catch { toast(S[lang].copyFail); }
+    }));
+
+    /* Scroll-spy */
+    const links = qsa("#toc a");
+    const byId = new Map(links.map((a) => [a.getAttribute("href").slice(1), a]));
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        links.forEach((a) => a.classList.remove("active"));
+        byId.get(e.target.id)?.classList.add("active");
+      });
+    }, { rootMargin: "-80px 0px -70% 0px" });
+    qsa("section[id]").forEach((s) => obs.observe(s));
+
+    /* Method demo */
+    function renderDemo() {
+      const t = S[lang];
+      qs("#demoOut").textContent =
+        demoState.kind === "pick" ? t.demoPick(demoState.value)
+        : demoState.kind === "tie" ? t.demoTie
+        : t.demoIdle;
+      qs("#blindCheck").hidden = demoState.kind === "idle";
+      qs("#guessOut").textContent =
+        guessState === null ? "" : guessState === "skip" ? t.guessSkip : t.guessMade;
+    }
+    qsa("[data-ans]").forEach((b) => b.addEventListener("click", () => {
+      qsa(".answer").forEach((a) => a.classList.toggle("sel", a === b));
+      qsa("[data-verdict]").forEach((v) => v.classList.remove("primary"));
+      demoState = { kind: "pick", value: b.dataset.ans };
+      renderDemo();
+    }));
+    qsa("[data-verdict]").forEach((b) => b.addEventListener("click", () => {
+      qsa(".answer").forEach((a) => a.classList.remove("sel"));
+      qsa("[data-verdict]").forEach((v) => v.classList.toggle("primary", v === b));
+      demoState = { kind: "tie", value: "" };
+      renderDemo();
+    }));
+    qsa("[data-guess]").forEach((b) => b.addEventListener("click", () => {
+      qsa("[data-guess]").forEach((g) => g.classList.toggle("primary", g === b));
+      guessState = b.dataset.guess;
+      renderDemo();
+    }));
+
+    /* Topology */
+    function renderTopo() {
+      const c = S[lang].topo[topoKey];
+      qs("#topoTitle").textContent = c.title;
+      qs("#topoBadge").textContent = c.badge;
+      qs("#topoNote").innerHTML = c.note;
+      qs("#topoFlow").innerHTML = c.nodes.map((n) =>
+        `<div class="flow-node${n.p ? " primary" : ""}"><svg class="icon"><use href="${n.i}"/></svg><strong>${n.t}</strong><small>${n.s}</small></div>`
+      ).join("");
+    }
+    qsa("[data-topo]").forEach((b) => b.addEventListener("click", () => {
+      qsa("[data-topo]").forEach((x) => x.classList.toggle("active", x === b));
+      topoKey = b.dataset.topo;
+      renderTopo();
+    }));
+
+    /* Calculator */
+    function calc() {
+      const loc = S[lang].locale;
+      const cases = +qs("#caseR").value, revs = +qs("#revR").value, kb = +qs("#szS").value;
+      const cmp = cases * revs;
+      const mb = Math.max(1, Math.round((cases * 2 * kb * 1.15) / 1024));
+      qs("#caseO").textContent = cases;
+      qs("#revO").textContent = revs;
+      qs("#estCmp").textContent = cmp.toLocaleString(loc);
+      qs("#estSize").textContent = `${mb} MB`;
+      qs("#estTime").textContent = `${(cmp / 60).toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${S[lang].hours}`;
+    }
+    ["#caseR", "#revR", "#szS"].forEach((id) => qs(id).addEventListener("input", calc));
+
+    /* Fit check */
+    const fitBoxes = qsa("[data-fit]");
+    function fit() {
+      const n = fitBoxes.filter((b) => b.checked).length;
+      const list = S[lang].verdicts;
+      const v = [...list].reverse().find((x) => n >= x.min) || list[0];
+      qs("#fitOut").innerHTML = `<strong>${v.t} · ${n}/6</strong>${v.d}`;
+    }
+    fitBoxes.forEach((b) => b.addEventListener("change", fit));
+
+    applyLang("en");
+  </script>
+</body>
+</html>

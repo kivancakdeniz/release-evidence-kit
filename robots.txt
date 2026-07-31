@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kivancakdeniz.github.io/release-evidence-kit/sitemap.xml

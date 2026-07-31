@@ -1,0 +1,42 @@
+name: Design objection
+about: Challenge a technical, privacy, governance, or scope decision
+labels: [objection]
+body:
+  - type: markdown
+    attributes:
+      value: Release Evidence Kit is a pre-draft. Strong objections that narrow or falsify the design are welcome.
+  - type: input
+    id: decision
+    attributes:
+      label: Affected decision or document
+      placeholder: ADR-032 or docs/SPEC-DRAFT.md
+    validations:
+      required: true
+  - type: textarea
+    id: objection
+    attributes:
+      label: Objection
+      description: State the claim or decision you believe is incorrect or unsafe.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Link first-party sources, a counterexample, or a reproducible verification failure.
+    validations:
+      required: true
+  - type: textarea
+    id: remedy
+    attributes:
+      label: Requested remedy
+      description: Describe the smallest change that would resolve the objection.
+    validations:
+      required: true
+  - type: checkboxes
+    id: sensitive
+    attributes:
+      label: Public-data confirmation
+      options:
+        - label: This issue contains no credentials, private prompts, reviewer data, or vulnerability exploit details.
+          required: true

@@ -1,0 +1,24 @@
+# macOS and editor state
+.DS_Store
+._*
+.vscode/
+
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Logs and generated output
+*.log
+_site/
+node_modules/
+coverage/
+
+# Package manager and tool caches
+.npm/
+.pnpm-store/
+.cache/
