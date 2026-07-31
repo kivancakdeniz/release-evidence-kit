@@ -2,6 +2,15 @@
 
 All notable public changes to this design repository are documented here.
 
+## 0.0.2-pre-draft - 2026-07-31
+
+### Security
+
+- Replaced the publication validator's regular-expression HTML anchor filter
+	with a quote-aware start-tag and attribute tokenizer.
+- Treats malformed URL encoding as a publication error.
+- Resolves CodeQL `js/bad-tag-filter` without adding a runtime dependency.
+
 ## 0.0.1-pre-draft - 2026-07-31
 
 ### Added

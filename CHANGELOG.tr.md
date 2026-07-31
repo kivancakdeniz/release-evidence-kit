@@ -4,6 +4,15 @@
 
 Bu tasarım deposundaki kayda değer tüm public değişiklikler burada belgelenir.
 
+## 0.0.2-pre-draft - 2026-07-31
+
+### Güvenlik
+
+- Yayın validator'ındaki regular-expression tabanlı HTML anchor filtresi,
+  quote-aware başlangıç etiketi ve attribute tokenizer'ı ile değiştirildi.
+- Geçersiz URL encoding'i yayın hatası olarak ele alınıyor.
+- Runtime bağımlılığı eklemeden CodeQL `js/bad-tag-filter` uyarısı giderildi.
+
 ## 0.0.1-pre-draft - 2026-07-31
 
 ### Eklendi

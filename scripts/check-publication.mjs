@@ -52,10 +52,82 @@ function validateTarget(sourceFile, rawTarget) {
   if (!target || target.includes("${") || target.startsWith("#") || /^(?:https?:|mailto:|data:|javascript:)/i.test(target)) return;
   const withoutFragment = target.split("#", 1)[0].split("?", 1)[0];
   if (!withoutFragment) return;
-  const decoded = decodeURIComponent(withoutFragment);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(withoutFragment);
+  } catch {
+    return report(sourceFile, `link contains invalid URL encoding: ${target}`);
+  }
   const resolved = normalize(resolve(dirname(sourceFile), decoded));
   if (!resolved.startsWith(root)) return report(sourceFile, `link escapes repository: ${target}`);
   if (!existsSync(resolved)) report(sourceFile, `broken local link: ${target}`);
+}
+
+function parseHtmlStartTags(html) {
+  const tags = [];
+  const isWhitespace = (character) => character === " " || character === "\n" || character === "\r" || character === "\t" || character === "\f";
+  const isTagNameCharacter = (character) => Boolean(character) && /[A-Za-z0-9:-]/.test(character);
+  const isAttributeNameCharacter = (character) => Boolean(character) && !isWhitespace(character) && character !== "=" && character !== ">" && character !== "/";
+
+  let index = 0;
+  while (index < html.length) {
+    const opening = html.indexOf("<", index);
+    if (opening === -1) break;
+    let cursor = opening + 1;
+    if (!/[A-Za-z]/.test(html[cursor] ?? "")) {
+      index = opening + 1;
+      continue;
+    }
+
+    const tagNameStart = cursor;
+    while (isTagNameCharacter(html[cursor])) cursor += 1;
+    const name = html.slice(tagNameStart, cursor).toLowerCase();
+    const attributes = new Map();
+
+    while (cursor < html.length) {
+      while (isWhitespace(html[cursor])) cursor += 1;
+      if (html[cursor] === ">") {
+        cursor += 1;
+        break;
+      }
+      if (html[cursor] === "/" && html[cursor + 1] === ">") {
+        cursor += 2;
+        break;
+      }
+
+      const attributeNameStart = cursor;
+      while (isAttributeNameCharacter(html[cursor])) cursor += 1;
+      if (cursor === attributeNameStart) {
+        cursor += 1;
+        continue;
+      }
+      const attributeName = html.slice(attributeNameStart, cursor).toLowerCase();
+      while (isWhitespace(html[cursor])) cursor += 1;
+
+      let value = "";
+      if (html[cursor] === "=") {
+        cursor += 1;
+        while (isWhitespace(html[cursor])) cursor += 1;
+        const quote = html[cursor] === '"' || html[cursor] === "'" ? html[cursor] : null;
+        if (quote) {
+          cursor += 1;
+          const valueStart = cursor;
+          while (cursor < html.length && html[cursor] !== quote) cursor += 1;
+          value = html.slice(valueStart, cursor);
+          if (html[cursor] === quote) cursor += 1;
+        } else {
+          const valueStart = cursor;
+          while (cursor < html.length && !isWhitespace(html[cursor]) && html[cursor] !== ">") cursor += 1;
+          value = html.slice(valueStart, cursor);
+        }
+      }
+      attributes.set(attributeName, value);
+    }
+
+    tags.push({ name, attributes });
+    index = Math.max(cursor, opening + 1);
+  }
+  return tags;
 }
 
 for (const file of files) {
@@ -65,10 +137,16 @@ for (const file of files) {
   if (extension === ".md") {
     for (const match of content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) validateTarget(file, match[1]);
   } else {
-    for (const match of content.matchAll(/(?:href|src)="([^"]+)"/g)) validateTarget(file, match[1]);
-    for (const match of content.matchAll(/<a\s+[^>]*href="https?:[^>]+>/g)) {
-      if (!/target="_blank"/.test(match[0]) || !/rel="[^"]*noopener[^"]*noreferrer[^"]*"/.test(match[0])) {
-        report(file, `external link must use target=_blank and rel=noopener noreferrer: ${match[0]}`);
+    for (const tag of parseHtmlStartTags(content)) {
+      for (const attributeName of ["href", "src"]) {
+        if (tag.attributes.has(attributeName)) validateTarget(file, tag.attributes.get(attributeName));
+      }
+      const href = tag.attributes.get("href") ?? "";
+      if (tag.name === "a" && /^https?:/i.test(href)) {
+        const rel = new Set((tag.attributes.get("rel") ?? "").toLowerCase().split(/\s+/).filter(Boolean));
+        if (tag.attributes.get("target") !== "_blank" || !rel.has("noopener") || !rel.has("noreferrer")) {
+          report(file, `external link must use target=_blank and rel=noopener noreferrer: ${href}`);
+        }
       }
     }
   }
