@@ -17,6 +17,8 @@
 _site/
 node_modules/
 coverage/
+__pycache__/
+*.py[cod]
 
 # Package manager and tool caches
 .npm/

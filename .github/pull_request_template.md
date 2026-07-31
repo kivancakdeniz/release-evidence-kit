@@ -10,7 +10,8 @@ Describe the single concern this pull request addresses.
 
 ## Verification
 
-- [ ] `node scripts/check-publication.mjs`
+- [ ] `python3 scripts/check-publication.py --self-test`
+- [ ] `python3 scripts/check-publication.py`
 - [ ] English and Turkish documentation remain aligned, when applicable
 - [ ] No secret, credential, private path, internal resource identifier, or personal data was added
 - [ ] No implementation or conformance claim was introduced

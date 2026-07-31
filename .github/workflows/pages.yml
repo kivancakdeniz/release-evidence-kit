@@ -20,7 +20,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Scan publication surface
-        run: node scripts/check-publication.mjs
+        run: |
+          python3 scripts/check-publication.py --self-test
+          python3 scripts/check-publication.py
 
   build:
     name: Build Pages artifact

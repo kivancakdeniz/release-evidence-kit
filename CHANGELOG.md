@@ -6,10 +6,13 @@ All notable public changes to this design repository are documented here.
 
 ### Security
 
-- Replaced the publication validator's regular-expression HTML anchor filter
-	with a quote-aware start-tag and attribute tokenizer.
+- Replaced regular-expression and hand-written HTML filtering with Python's
+	standard-library `HTMLParser`, including decoded attribute values.
+- Normalizes and classifies link targets before enforcing external-link and SVG
+	resource rules.
 - Treats malformed URL encoding as a publication error.
-- Resolves CodeQL `js/bad-tag-filter` without adding a runtime dependency.
+- Resolves CodeQL `js/bad-tag-filter` and `js/incomplete-url-scheme-check`
+	without adding a package dependency.
 
 ## 0.0.1-pre-draft - 2026-07-31
 

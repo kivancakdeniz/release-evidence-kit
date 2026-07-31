@@ -8,10 +8,13 @@ Bu tasarım deposundaki kayda değer tüm public değişiklikler burada belgelen
 
 ### Güvenlik
 
-- Yayın validator'ındaki regular-expression tabanlı HTML anchor filtresi,
-  quote-aware başlangıç etiketi ve attribute tokenizer'ı ile değiştirildi.
+- Regular-expression ve el yazımı HTML filtreleme, decoded attribute değerleri
+    dahil Python standart kütüphanesindeki `HTMLParser` ile değiştirildi.
+- Dış link ve SVG resource kuralları uygulanmadan önce link hedefleri normalize
+    edilip sınıflandırılıyor.
 - Geçersiz URL encoding'i yayın hatası olarak ele alınıyor.
-- Runtime bağımlılığı eklemeden CodeQL `js/bad-tag-filter` uyarısı giderildi.
+- Paket bağımlılığı eklemeden CodeQL `js/bad-tag-filter` ve
+    `js/incomplete-url-scheme-check` uyarıları giderildi.
 
 ## 0.0.1-pre-draft - 2026-07-31
 
